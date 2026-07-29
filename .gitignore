@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+logs/
+config/user_config.json
+*.zanime
+temp/

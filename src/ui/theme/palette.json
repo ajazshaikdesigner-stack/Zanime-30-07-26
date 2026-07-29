@@ -1,0 +1,14 @@
+{
+    "dark": {
+        "bg_color": "#1e1e1e",
+        "fg_color": "#e0e0e0",
+        "accent_color": "#007acc",
+        "border_color": "#3f3f46"
+    },
+    "light": {
+        "bg_color": "#ffffff",
+        "fg_color": "#111111",
+        "accent_color": "#007acc",
+        "border_color": "#cccccc"
+    }
+}
