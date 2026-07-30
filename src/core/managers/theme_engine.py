@@ -82,6 +82,8 @@ QDockWidget::title {
 
     def apply_theme(self):
         """Generates and applies the QSS to the QApplication."""
+        from PySide6.QtGui import QFont
+
         screen = self.app.primaryScreen()
         dpi = screen.logicalDotsPerInch()
         scale = dpi / 96.0
@@ -98,12 +100,19 @@ QDockWidget::title {
 
             active_palette = palettes.get(self.current_theme, palettes["dark"])
 
-            # Replace variables
-            for key, value in active_palette.items():
-                qss = qss.replace(f"@{key}", value)
+            # Replace all palette token variables (longest keys first to avoid partial matches)
+            for key in sorted(active_palette.keys(), key=len, reverse=True):
+                qss = qss.replace(f"@{key}", active_palette[key])
 
-            qss = qss.replace("@font_size", f"{int(10 * scale)}pt")
+            font_size_pt = int(10 * scale)
+            qss = qss.replace("@font_size", f"{font_size_pt}pt")
+
+            # Apply global font
+            font_family = active_palette.get("font_family", "Segoe UI")
+            app_font = QFont(font_family, font_size_pt)
+            self.app.setFont(app_font)
 
             self.app.setStyleSheet(qss)
+            logger.info(f"ThemeEngine: Theme applied successfully ({len(qss)} chars QSS)")
         except Exception as e:
             logger.error(f"Failed to apply theme: {e}")

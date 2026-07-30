@@ -5,7 +5,7 @@ Main window using the Workspace Manager and dynamic Docks.
 import logging
 
 from PySide6.QtCore import QSettings, Qt
-from PySide6.QtWidgets import QMainWindow, QStackedWidget
+from PySide6.QtWidgets import QMainWindow, QStackedWidget, QToolBar
 
 from src.core.events.event_bus import EventBus
 from src.core.events.event_types import Event
@@ -31,7 +31,7 @@ class ZanimeMainWindow(QMainWindow):
     def __init__(self, app):
         super().__init__()
         self.app = app
-        self.setWindowTitle("ZANIME v2 - Professional 2D Animation Studio")
+        self.setWindowTitle("✦ ZANIME v2 — Professional 2D Animation Studio")
         self.setMinimumSize(1024, 768)
 
         # Central Stacked Widget
@@ -88,6 +88,9 @@ class ZanimeMainWindow(QMainWindow):
         registry.get(EventBus).subscribe(
             Event.WORKSPACE_CHANGED, self._on_workspace_changed
         )
+        registry.get(EventBus).subscribe(
+            Event.WORKSPACE_CHANGED, self._on_workspace_changed_sidebar
+        )
 
     def _restore_window_state(self):
         from PySide6.QtWidgets import QApplication
@@ -120,6 +123,20 @@ class ZanimeMainWindow(QMainWindow):
         # Cleanup remaining workspaces
         self.workspace_factory.cleanup_memory(self)
         super().closeEvent(event)
+
+    def _on_workspace_changed_sidebar(self, workspace_name: str):
+        """Sync sidebar active button and menu dock checkboxes."""
+        # Sync sidebar
+        for tb in self.findChildren(QToolBar):
+            if hasattr(tb, "set_active"):
+                tb.set_active(workspace_name)
+                break
+        # Sync View menu dock checkboxes
+        menu_bar = self.menuBar()
+        if hasattr(menu_bar, "dock_actions"):
+            for dock_id, action in menu_bar.dock_actions.items():
+                if dock_id in self.docks:
+                    action.setChecked(self.docks[dock_id].isVisible())
 
     def _on_workspace_changed(self, workspace_name: str):
         try:
