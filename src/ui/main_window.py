@@ -17,8 +17,13 @@ from src.ui.docks.history_dock import HistoryDock
 from src.ui.docks.notification_dock import NotificationDock
 from src.ui.docks.preview_dock import PreviewDock
 from src.ui.docks.project_explorer_dock import ProjectExplorerDock
+from src.ui.docks.ai_copilot_dock import AICopilotDock
+from src.ui.docks.ai_history_dock import AIHistoryDock
+from src.ui.docks.ai_job_manager_dock import AIJobManagerDock
+from src.ui.docks.model_manager_dock import ModelManagerDock
 from src.ui.docks.properties_dock import PropertiesDock
 from src.ui.docks.timeline_dock import TimelineDock
+from src.ui.docks.toolbox_dock import ToolboxDock
 from src.ui.widgets.menu_bar import ZanimeMenuBar
 from src.ui.widgets.sidebar import ZanimeSidebar
 from src.ui.widgets.status_bar import ZanimeStatusBar
@@ -61,6 +66,7 @@ class ZanimeMainWindow(QMainWindow):
         self.addToolBar(Qt.LeftToolBarArea, ZanimeSidebar(self))
 
         # Docks
+        self.docks["Toolbox"] = ToolboxDock(self)
         self.docks["Properties"] = PropertiesDock(self)
         self.docks["Timeline"] = TimelineDock(self)
         self.docks["ProjectExplorer"] = ProjectExplorerDock(self)
@@ -69,6 +75,11 @@ class ZanimeMainWindow(QMainWindow):
         self.docks["NotificationCenter"] = NotificationDock(self)
         self.docks["History"] = HistoryDock(self)
         self.docks["Preview"] = PreviewDock(self)
+        # Phase 3 AI docks
+        self.docks["AICopilot"] = AICopilotDock(self)
+        self.docks["AIJobs"] = AIJobManagerDock(self)
+        self.docks["AIHistory"] = AIHistoryDock(self)
+        self.docks["ModelManager"] = ModelManagerDock(self)
 
         # Specific Dock Areas
         self.addDockWidget(Qt.RightDockWidgetArea, self.docks["Properties"])
@@ -79,8 +90,14 @@ class ZanimeMainWindow(QMainWindow):
         self.addDockWidget(Qt.BottomDockWidgetArea, self.docks["NotificationCenter"])
         self.addDockWidget(Qt.BottomDockWidgetArea, self.docks["Console"])
 
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.docks["Toolbox"])
         self.addDockWidget(Qt.LeftDockWidgetArea, self.docks["History"])
         self.addDockWidget(Qt.LeftDockWidgetArea, self.docks["Preview"])
+        # Phase 3 AI docks — right panel
+        self.addDockWidget(Qt.RightDockWidgetArea, self.docks["AICopilot"])
+        self.addDockWidget(Qt.RightDockWidgetArea, self.docks["AIJobs"])
+        self.addDockWidget(Qt.RightDockWidgetArea, self.docks["AIHistory"])
+        self.addDockWidget(Qt.RightDockWidgetArea, self.docks["ModelManager"])
 
         for dock in self.docks.values():
             dock.hide()

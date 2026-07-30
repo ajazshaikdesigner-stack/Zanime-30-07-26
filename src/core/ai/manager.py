@@ -15,9 +15,10 @@ from src.core.events.event_types import Event
 from .download_manager import DownloadManager
 from .model_manager import ModelManager
 from .providers.base import AIBaseProvider
-from .providers.diffusers_provider import DiffusersProvider
+from .providers.comfyui_provider import ComfyUIProvider
+from .providers.music_provider import MusicProvider
 from .providers.ollama_provider import OllamaProvider
-from .providers.piper_provider import PiperProvider
+from .providers.piper_provider import TTSProvider
 from .providers.whisper_provider import WhisperProvider
 from .task_queue import AITaskQueue
 
@@ -69,10 +70,11 @@ class AIManager(QObject):
 
             # Initialize providers
             self.providers = {
-                "llm": OllamaProvider(),
-                "diffusion": DiffusersProvider(),
-                "stt": WhisperProvider(),
-                "tts": PiperProvider(),
+                "llm":       OllamaProvider(),
+                "diffusion": ComfyUIProvider(),
+                "stt":       WhisperProvider(),
+                "tts":       TTSProvider(),
+                "music":     MusicProvider(),
             }
 
             self._is_initialized = True

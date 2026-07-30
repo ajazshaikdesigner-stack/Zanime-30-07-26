@@ -84,3 +84,7 @@ class StoryboardPropertiesDock(BaseDock):
 
     def show_shot_properties(self):
         self.stack.setCurrentWidget(self.shot_widget)
+
+    def get_scene_description(self) -> str:
+        """Return the current scene description text for AI generation input."""
+        return self.scene_desc.toPlainText().strip()

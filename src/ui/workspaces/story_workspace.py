@@ -11,6 +11,7 @@ from PySide6.QtWidgets import QMessageBox
 logger = logging.getLogger(__name__)
 
 from src.core.ai import ZanimeAIAPI
+from src.core.ai.history_manager import AIHistoryManager
 from src.core.events.event_bus import EventBus
 from src.core.events.event_types import Event
 from src.core.managers.project_manager import ProjectManager
@@ -30,6 +31,9 @@ class StoryWorkspace(BaseWorkspace):
         super().__init__("Story Studio", parent)
         self.app = app
         self.story_model = StoryModel()
+        self._pending_task_id: str | None = None
+        self._pending_task_type: str = ""
+        self._task_start_time: float = 0.0
 
         # Center Widget
         self.editor = StoryEditor()
@@ -91,29 +95,92 @@ class StoryWorkspace(BaseWorkspace):
                 f"{action} this text: {self.editor.text_edit.toPlainText()[:500]}"
             )
 
-        registry.get(ZanimeAIAPI).generate_story(full_prompt, {})
+        self._task_start_time = time.time()
+        self._pending_task_type = "story"
+        try:
+            task_id = registry.get(ZanimeAIAPI).generate_story(full_prompt, {})
+            self._pending_task_id = task_id
+        except Exception:
+            logger.exception("StoryWorkspace: Failed to queue story generation.")
+
+    def generate_scene_breakdown(self):
+        """Use AI to break the current story into scenes. Updates analysis dock."""
+        story_text = self.editor.text_edit.toPlainText()
+        if not story_text.strip():
+            QMessageBox.warning(self, "Empty Story", "Write a story first before generating scene breakdown.")
+            return
+        self._task_start_time = time.time()
+        self._pending_task_type = "scene_breakdown"
+        try:
+            task_id = registry.get(ZanimeAIAPI).generate_scene_breakdown(story_text, {})
+            self._pending_task_id = task_id
+        except Exception:
+            logger.exception("StoryWorkspace: Failed to queue scene breakdown.")
+
+    def export_to_storyboard(self):
+        """Queue story text to the Storyboard workspace for AI storyboarding."""
+        story_text = self.editor.text_edit.toPlainText()
+        if not story_text.strip():
+            QMessageBox.warning(self, "Empty Story", "Write a story first.")
+            return
+        try:
+            from src.core.managers.workspace_manager import WorkspaceManager
+            wm = registry.get(WorkspaceManager)
+            # Switch to storyboard workspace first, then feed it the story text
+            wm.set_workspace("Storyboard")
+            # The workspace will be lazy-created; we publish an event for it to pick up
+            from src.core.events.event_types import Event
+            registry.get(EventBus).publish(Event.AI_COPILOT_MESSAGE, {
+                "action": "generate_storyboard_from_story",
+                "story_text": story_text,
+            })
+        except Exception:
+            logger.exception("StoryWorkspace: export_to_storyboard failed.")
 
     def _on_ai_completed(self, data: dict):
+        if self._pending_task_id and data.get("id") != self._pending_task_id:
+            return  # Not our task
+        self._pending_task_id = None
+
         # We assume result has 'text'
         res = data.get("result", {}).get("text", "")
         if res:
-            self.story_model.content = res
-            self.editor.text_edit.setPlainText(res)
+            if self._pending_task_type in ("story", ""):
+                self.story_model.content = res
+                self.editor.text_edit.setPlainText(res)
 
-            # Save history
-            ver = StoryVersion(
-                version_id=data.get("id", ""),
-                timestamp=time.time(),
-                ai_model="llama3:8b",
-                prompt="UI Prompt",
-                result=res,
-            )
-            self.story_model.history.append(ver)
-            self.history_dock.update_history(self.story_model.history)
+                # Save history entry
+                ver = StoryVersion(
+                    version_id=data.get("id", ""),
+                    timestamp=time.time(),
+                    ai_model="llama3:8b",
+                    prompt="UI Prompt",
+                    result=res,
+                )
+                self.story_model.history.append(ver)
+                self.history_dock.update_history(self.story_model.history)
 
-            # Validate
-            warnings = StoryValidator.validate(self.story_model)
-            self.analysis_dock.update_analysis(self.story_model, warnings)
+                # Validate
+                warnings = StoryValidator.validate(self.story_model)
+                self.analysis_dock.update_analysis(self.story_model, warnings)
+
+            elif self._pending_task_type == "scene_breakdown":
+                self.analysis_dock.update_breakdown(res)
+
+            # Record in AI history
+            try:
+                elapsed_ms = int((time.time() - self._task_start_time) * 1000)
+                registry.get(AIHistoryManager).record(
+                    task_type="text",
+                    prompt=self._pending_task_type,
+                    output_path="",
+                    model_name="llama3:8b",
+                    provider="llm",
+                    workspace="Story",
+                    duration_ms=elapsed_ms,
+                )
+            except Exception:
+                pass
 
     def autosave_story(self):
         if registry.get(ProjectManager).current_project_path:

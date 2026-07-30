@@ -23,6 +23,7 @@ class Event(Enum):
     # State
     SELECTION_CHANGED = auto()
     THEME_CHANGED = auto()
+    TOOL_CHANGED = auto()
 
     # Actions
     UNDO_EXECUTED = auto()
@@ -35,3 +36,14 @@ class Event(Enum):
     AI_TASK_PROGRESS = auto()
     AI_MODEL_LOADED = auto()
     AI_MODEL_UNLOADED = auto()
+    # AI History
+    AI_HISTORY_ENTRY_ADDED = auto()
+    # Model downloads
+    AI_MODEL_DOWNLOAD_STARTED = auto()
+    AI_MODEL_DOWNLOAD_PROGRESS = auto()
+    AI_MODEL_DOWNLOAD_COMPLETE = auto()
+    AI_MODEL_DOWNLOAD_FAILED = auto()
+    # Copilot
+    AI_COPILOT_MESSAGE = auto()
+    # Consistency
+    AI_CONSISTENCY_UPDATED = auto()

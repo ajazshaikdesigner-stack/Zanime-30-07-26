@@ -22,6 +22,7 @@ from src.core.managers.notification_manager import NotificationManager
 from src.core.managers.plugin_manager import PluginManager
 from src.core.managers.project_manager import ProjectManager
 from src.core.managers.shortcut_manager import ShortcutManager
+from src.core.managers.selection_manager import SelectionManager
 from src.core.managers.theme_engine import ThemeEngine
 from src.core.managers.window_manager import WindowManager
 from src.core.managers.workspace_manager import WorkspaceManager
@@ -126,7 +127,14 @@ class ApplicationBootstrap:
         registry.register(LayoutManager, layout_manager)
         registry.register(WorkspaceManager, WorkspaceManager(event_bus, layout_manager))
         registry.register(CommandManager, CommandManager(event_bus))
-        registry.register(ShortcutManager, ShortcutManager(event_bus, config))
+        registry.register(SelectionManager, SelectionManager(event_bus))
+        
+        shortcut_manager = ShortcutManager(event_bus, config)
+        registry.register(ShortcutManager, shortcut_manager)
+        
+        # Register core global shortcuts
+        shortcut_manager.register("undo", "Ctrl+Z", registry.get(CommandManager).undo)
+        shortcut_manager.register("redo", "Ctrl+Y", registry.get(CommandManager).redo)
 
         update_splash(70, "Loading Plugins...")
         plugin_manager = PluginManager(config)
@@ -136,6 +144,8 @@ class ApplicationBootstrap:
 
         update_splash(80, "Registering AI Framework...")
         from src.core.ai import AIManager, ZanimeAIAPI
+        from src.core.ai.history_manager import AIHistoryManager
+        from src.core.ai.consistency_manager import ConsistencyManager
 
         registry.register_factory(
             AIManager,
@@ -146,6 +156,12 @@ class ApplicationBootstrap:
         registry.register_factory(
             ZanimeAIAPI, lambda: ZanimeAIAPI(registry.get(AIManager))
         )
+
+        ai_history = AIHistoryManager(event_bus)
+        registry.register(AIHistoryManager, ai_history)
+
+        consistency = ConsistencyManager()
+        registry.register(ConsistencyManager, consistency)
 
         app_mgr = ApplicationManager(event_bus)
         registry.register(ApplicationManager, app_mgr)
@@ -159,6 +175,7 @@ class ApplicationBootstrap:
         main_window = ZanimeMainWindow(self.app)
         window_manager.set_main_window(main_window)
         layout_manager.main_window = main_window
+        registry.get(ShortcutManager).set_main_window(main_window)
         main_window.show()
         main_window.raise_()
         main_window.activateWindow()
