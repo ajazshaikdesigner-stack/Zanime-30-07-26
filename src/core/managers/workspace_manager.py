@@ -15,11 +15,11 @@ class WorkspaceManager:
     def __init__(self, event_bus: EventBus, layout_manager: LayoutManager):
         self.event_bus = event_bus
         self.layout_manager = layout_manager
-        self.active_workspace: str = None
+        self.active_workspace: str = "Welcome"
 
-    def set_workspace(self, workspace_name: str) -> None:
+    def set_workspace(self, workspace_name: str, force: bool = False) -> None:
         """Changes the active workspace and publishes an event for the UI."""
-        if self.active_workspace != workspace_name:
+        if self.active_workspace != workspace_name or force:
             logger.info(
                 f"Switching workspace from {self.active_workspace} to {workspace_name}"
             )

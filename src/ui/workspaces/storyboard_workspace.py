@@ -64,7 +64,7 @@ class StoryboardWorkspace(BaseWorkspace):
         item = items[0]
         data = item.data(0, 99)
         if data:
-            item_type, uuid = data
+            item_type, _uuid = data
             if item_type == "scene":
                 self.properties_dock.show_scene_properties()
             elif item_type == "shot":
@@ -94,3 +94,18 @@ class StoryboardWorkspace(BaseWorkspace):
 
     def autosave(self):
         logger.info("StoryboardWorkspace: Autosaving storyboard...")
+
+    def get_required_docks(self):
+        return []
+
+    def get_hidden_docks(self):
+        return [
+            "Properties",
+            "Timeline",
+            "ProjectExplorer",
+            "Console",
+            "AssetBrowser",
+            "NotificationCenter",
+            "History",
+            "Preview",
+        ]

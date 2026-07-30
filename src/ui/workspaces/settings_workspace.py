@@ -57,3 +57,18 @@ class SettingsWorkspace(BaseWorkspace):
     def _check_update(self):
         msg = UpdateManager.check_for_updates()
         logger.info(msg)
+
+    def get_required_docks(self):
+        return []
+
+    def get_hidden_docks(self):
+        return [
+            "Properties",
+            "Timeline",
+            "ProjectExplorer",
+            "Console",
+            "AssetBrowser",
+            "NotificationCenter",
+            "History",
+            "Preview",
+        ]

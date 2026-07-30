@@ -17,12 +17,25 @@ class ZanimeMenuBar(QMenuBar):
         super().__init__(parent)
         self.app = parent.app if hasattr(parent, "app") else None
         self._setup_menus()
+        self._setup_events()
 
     def _setup_menus(self):
         self._build_file_menu()
         self._build_edit_menu()
+        self._build_workspaces_menu()
         self._build_view_menu()
         self._build_help_menu()
+
+    def _setup_events(self):
+        from src.core.events.event_bus import EventBus
+        from src.core.events.event_types import Event
+
+        try:
+            registry.get(EventBus).subscribe(
+                Event.WORKSPACE_CHANGED, self._on_workspace_changed_sync
+            )
+        except KeyError:
+            pass
 
     # ─────────────────────────────── FILE ────────────────────────────────
     def _build_file_menu(self):
@@ -92,6 +105,58 @@ class ZanimeMenuBar(QMenuBar):
         self.edit_menu.addAction(self.action_preferences)
         self.addMenu(self.edit_menu)
 
+    # ─────────────────────────────── WORKSPACES ──────────────────────────
+    def _build_workspaces_menu(self):
+        self.workspaces_menu = QMenu("Workspaces", self)
+        workspaces = [
+            ("Story", "Story Workspace", "Ctrl+1"),
+            ("Script", "Script Workspace", "Ctrl+2"),
+            ("Characters", "Characters Workspace", "Ctrl+3"),
+            ("Backgrounds", "Backgrounds Workspace", None),
+            ("Props", "Props Workspace", None),
+            ("SEP", None, None),
+            ("Storyboard", "Storyboard Workspace", "Ctrl+4"),
+            ("SceneComposer", "Scene Composer Workspace", "Ctrl+5"),
+            ("Animation", "Animation Workspace", "Ctrl+6"),
+            ("Voice", "Voice Workspace", "Ctrl+7"),
+            ("Music", "Music Workspace", "Ctrl+8"),
+            ("SEP", None, None),
+            ("Render", "Render Workspace", "Ctrl+9"),
+            ("SEP", None, None),
+            ("Home", "Home Workspace", None),
+            ("Library", "Library Workspace", None),
+            ("Settings", "Settings Workspace", None),
+        ]
+
+        self.workspace_actions = {}
+        for ws_id, label, shortcut in workspaces:
+            if ws_id == "SEP":
+                self.workspaces_menu.addSeparator()
+                continue
+
+            action = QAction(label, self)
+            action.setCheckable(True)
+            if shortcut:
+                action.setShortcut(shortcut)
+            action.triggered.connect(
+                lambda checked=False, w=ws_id: self._switch_workspace(w)
+            )
+            self.workspaces_menu.addAction(action)
+            self.workspace_actions[ws_id] = action
+
+        self.addMenu(self.workspaces_menu)
+
+    def _switch_workspace(self, workspace_name: str):
+        if self.app:
+            registry.get(WorkspaceManager).set_workspace(workspace_name)
+
+    def _on_workspace_changed_sync(self, workspace_name: str):
+        if hasattr(self, "workspace_actions"):
+            for ws_id, action in self.workspace_actions.items():
+                action.blockSignals(True)
+                action.setChecked(ws_id == workspace_name)
+                action.blockSignals(False)
+
     # ─────────────────────────────── VIEW ────────────────────────────────
     def _build_view_menu(self):
         self.view_menu = QMenu("View", self)
@@ -160,13 +225,21 @@ class ZanimeMenuBar(QMenuBar):
         if self.app:
             from src.ui.wizards.new_project_wizard import NewProjectWizard
             wizard = NewProjectWizard(registry.get(ProjectManager), self)
-            wizard.exec()
+            if wizard.exec():
+                wm = registry.get(WorkspaceManager)
+                if wm.active_workspace == "Welcome":
+                    wm.set_workspace("Home")
 
     def _on_open_project(self):
-        path = QFileDialog.getExistingDirectory(self, "Open ZANIME Project Folder", "")
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open ZANIME Project", "", "Zanime Projects (*.zanime);;All Files (*)"
+        )
         if path:
             try:
                 registry.get(ProjectManager).open_project(path)
+                wm = registry.get(WorkspaceManager)
+                if wm.active_workspace == "Welcome":
+                    wm.set_workspace("Home")
             except Exception as e:
                 QMessageBox.warning(self, "Open Project", f"Could not open project:\n{e}")
 
@@ -223,7 +296,6 @@ class ZanimeMenuBar(QMenuBar):
             )
             if path:
                 try:
-                    from src.ui.workspace_factory import WorkspaceFactory
                     # Try to get content from current story workspace via registry
                     main_win = self.parent()
                     ws_widget = None

@@ -3,13 +3,12 @@ Main Toolbar component — premium styled.
 """
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLabel, QToolBar, QToolButton, QWidget, QHBoxLayout
+from PySide6.QtWidgets import QLabel, QToolBar, QToolButton, QWidget
 
 from src.core.managers.command_manager import CommandManager
 from src.core.managers.project_manager import ProjectManager
 from src.core.managers.workspace_manager import WorkspaceManager
 from src.core.services.service_registry import registry
-
 
 _STYLE = """
 QToolBar#MainToolbar {
@@ -155,20 +154,45 @@ class ZanimeToolBar(QToolBar):
         self.addWidget(self.project_lbl)
 
         self.addWidget(_make_sep())
+        self._setup_events()
+
+    def _setup_events(self):
+        import os
+
+        from src.core.events.event_bus import EventBus
+        from src.core.events.event_types import Event
+
+        try:
+            registry.get(EventBus).subscribe(
+                Event.PROJECT_OPENED,
+                lambda path: self.update_project_name(
+                    os.path.basename(path).replace(".zanime", "")
+                ),
+            )
+        except KeyError:
+            pass
 
     # ── Handlers ──────────────────────────────────────────────────────────
     def _on_new(self):
         if self.app:
             from src.ui.wizards.new_project_wizard import NewProjectWizard
             wizard = NewProjectWizard(registry.get(ProjectManager), self)
-            wizard.exec()
+            if wizard.exec():
+                wm = registry.get(WorkspaceManager)
+                if wm.active_workspace == "Welcome":
+                    wm.set_workspace("Home")
 
     def _on_open(self):
         from PySide6.QtWidgets import QFileDialog, QMessageBox
-        path = QFileDialog.getExistingDirectory(self, "Open ZANIME Project Folder", "")
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open ZANIME Project", "", "Zanime Projects (*.zanime);;All Files (*)"
+        )
         if path:
             try:
                 registry.get(ProjectManager).open_project(path)
+                wm = registry.get(WorkspaceManager)
+                if wm.active_workspace == "Welcome":
+                    wm.set_workspace("Home")
             except Exception as e:
                 QMessageBox.warning(self, "Open Project", f"Could not open project:\n{e}")
 

@@ -15,13 +15,13 @@ class AnimationValidator:
                 end_frame = clip.start_frame + clip.duration
                 if end_frame > timeline.total_frames:
                     errors.append(
-                        (
+                        
                             "Broken Timeline: Clip '"
                             + f"{clip.name}"
                             + "' extends beyond total frames ("
                             + f"{end_frame} > {timeline.total_frames}"
                             + ")."
-                        )
+                        
                     )
 
                 # Check for conflicting keyframes (same frame, same property)

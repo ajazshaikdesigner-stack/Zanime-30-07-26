@@ -1,4 +1,8 @@
+import argparse
+import logging
 import os
+
+logger = logging.getLogger(__name__)
 
 workspaces = [
     "Story",
@@ -20,7 +24,7 @@ template = """\"\"\"
 \"\"\"
 from PySide6.QtWidgets import QVBoxLayout, QLabel
 from PySide6.QtCore import Qt
-from src.ui.workspaces.base_workspace import BaseWorkspace
+from src.core.sdk.base_workspace import BaseWorkspace
 
 class {class_name}Workspace(BaseWorkspace):
     def __init__(self, app, parent=None):
@@ -36,25 +40,64 @@ class {class_name}Workspace(BaseWorkspace):
         return []
 
     def get_hidden_docks(self):
-        return ["Properties", "Timeline", "ProjectExplorer", "Console"]
+        return [
+            "Properties",
+            "Timeline",
+            "ProjectExplorer",
+            "Console",
+            "AssetBrowser",
+            "NotificationCenter",
+            "History",
+            "Preview",
+        ]
 """
 
-for ws in workspaces:
-    filename = f"{ws.lower()}_workspace.py"
-    if ws == "SceneComposer":
-        filename = "scene_composer_workspace.py"
 
-    # Format class name (e.g. SceneComposer)
-    class_name = ws
-    # Format display name (e.g. Scene Composer)
-    display_name = ws if ws != "SceneComposer" else "Scene Composer"
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generates missing ZANIME workspace templates."
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite existing workspace files if confirmed.",
+    )
+    args = parser.parse_args()
 
-    filepath = os.path.join("src", "ui", "workspaces", filename)
-    with open(filepath, "w", encoding="utf-8") as f:
-        f.write(
-            template.format(
-                name=display_name, class_name=class_name, display_name=display_name
+    created_count = 0
+    skipped_count = 0
+
+    for ws in workspaces:
+        filename = f"{ws.lower()}_workspace.py"
+        if ws == "SceneComposer":
+            filename = "scene_composer_workspace.py"
+
+        class_name = ws
+        display_name = ws if ws != "SceneComposer" else "Scene Composer"
+
+        filepath = os.path.join("src", "ui", "workspaces", filename)
+
+        if os.path.exists(filepath) and not args.force:
+            print(f"[SKIP] Workspace file already exists: {filepath}")
+            skipped_count += 1
+            continue
+
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, "w", encoding="utf-8") as f:
+            f.write(
+                template.format(
+                    name=display_name,
+                    class_name=class_name,
+                    display_name=display_name,
+                )
             )
-        )
+        print(f"[CREATED] {filepath}")
+        created_count += 1
 
-print("Workspaces generated.")
+    print(
+        f"\nWorkspace Generation Complete: {created_count} created, {skipped_count} skipped."
+    )
+
+
+if __name__ == "__main__":
+    main()

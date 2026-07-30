@@ -9,11 +9,13 @@ class Event(Enum):
     # Lifecycle
     APP_STARTED = auto()
     APP_SHUTDOWN = auto()
+    HEALTH_CHECK_COMPLETED = auto()
 
     # Projects
     PROJECT_OPENED = auto()
     PROJECT_SAVED = auto()
     PROJECT_CLOSED = auto()
+    PROJECT_RECOVERED = auto()
 
     # Workspace
     WORKSPACE_CHANGED = auto()

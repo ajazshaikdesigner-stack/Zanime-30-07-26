@@ -65,3 +65,18 @@ class CharactersWorkspace(BaseWorkspace):
     def autosave(self):
         logger.info("CharactersWorkspace: Autosaving character...")
         # In a real app, this would use CharacterIO to write to the temp project dir
+
+    def get_required_docks(self):
+        return []
+
+    def get_hidden_docks(self):
+        return [
+            "Properties",
+            "Timeline",
+            "ProjectExplorer",
+            "Console",
+            "AssetBrowser",
+            "NotificationCenter",
+            "History",
+            "Preview",
+        ]

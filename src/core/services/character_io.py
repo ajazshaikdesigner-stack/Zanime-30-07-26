@@ -1,17 +1,15 @@
-"""
-Character I/O operations (Export/Import).
-"""
-
 import json
+import logging
 
 from src.models.character_model import CharacterModel
+
+logger = logging.getLogger(__name__)
 
 
 class CharacterIO:
     @staticmethod
     def export_json(model: CharacterModel, path: str) -> bool:
         """Dumps character metadata to JSON."""
-        # Simple serialization
         data = {
             "name": model.dna.name,
             "age": model.dna.age,
@@ -23,7 +21,8 @@ class CharacterIO:
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
             return True
-        except Exception:
+        except Exception as e:
+            logger.exception("Failed to export character JSON to %s: %s", path, e)
             return False
 
     @staticmethod
@@ -37,6 +36,6 @@ class CharacterIO:
                 model.dna.age = data.get("age", 18)
                 model.dna.gender = data.get("gender", "Unknown")
                 model.is_favorite = data.get("favorite", False)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.exception("Failed to import character JSON from %s: %s", path, e)
         return model

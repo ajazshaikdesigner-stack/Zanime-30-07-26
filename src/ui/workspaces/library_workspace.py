@@ -62,3 +62,18 @@ class LibraryWorkspace(BaseWorkspace):
                 self.browser.populate(favs)
             else:
                 self._load_assets()
+
+    def get_required_docks(self):
+        return []
+
+    def get_hidden_docks(self):
+        return [
+            "Properties",
+            "Timeline",
+            "ProjectExplorer",
+            "Console",
+            "AssetBrowser",
+            "NotificationCenter",
+            "History",
+            "Preview",
+        ]

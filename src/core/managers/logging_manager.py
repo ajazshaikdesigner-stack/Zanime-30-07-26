@@ -5,7 +5,6 @@ Logging Manager for domain-specific log streams.
 import logging
 import os
 import sys
-from logging.handlers import TimedRotatingFileHandler
 
 
 class LoggingManager:
@@ -31,12 +30,9 @@ class LoggingManager:
         console.setLevel(logging.INFO)
         console.setFormatter(formatter)
 
-        # File (App Log)
-        file_handler = TimedRotatingFileHandler(
+        # Standard File Handler (no rotation, no auto log cleanup)
+        file_handler = logging.FileHandler(
             os.path.join(self.log_dir, "app.log"),
-            when="midnight",
-            interval=1,
-            backupCount=7,
             encoding="utf-8",
             delay=True,
         )
@@ -53,13 +49,14 @@ class LoggingManager:
         logger.propagate = False
 
         formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        file_handler = TimedRotatingFileHandler(
+        # Standard File Handler (no rotation, no auto log cleanup)
+        file_handler = logging.FileHandler(
             os.path.join(self.log_dir, filename),
-            when="midnight",
-            interval=1,
-            backupCount=7,
             encoding="utf-8",
             delay=True,
         )
+        file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+
+        if not logger.handlers:
+            logger.addHandler(file_handler)

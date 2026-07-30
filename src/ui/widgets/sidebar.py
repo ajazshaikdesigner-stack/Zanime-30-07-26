@@ -4,13 +4,17 @@ Premium vertical sidebar for switching workspaces.
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QButtonGroup, QLabel, QPushButton, QToolBar, QWidget,
-    QVBoxLayout, QFrame
+    QButtonGroup,
+    QFrame,
+    QLabel,
+    QPushButton,
+    QToolBar,
+    QVBoxLayout,
+    QWidget,
 )
 
 from src.core.managers.workspace_manager import WorkspaceManager
 from src.core.services.service_registry import registry
-
 
 # Sidebar color tokens (match palette.json dark theme)
 _STYLE = """
@@ -173,8 +177,7 @@ class ZanimeSidebar(QToolBar):
         self.addWidget(sep)
 
     def _on_click(self, workspace_name: str):
-        if self.app:
-            registry.get(WorkspaceManager).set_workspace(workspace_name)
+        registry.get(WorkspaceManager).set_workspace(workspace_name)
 
     def set_active(self, workspace_name: str):
         """Programmatically check the button for the given workspace."""

@@ -32,12 +32,16 @@ class ZanimeApp(QApplication):
             app_manager = registry.get(ApplicationManager)
             app_manager.shutdown()
         except KeyError:
-            pass
+            logger.debug("ApplicationManager not found in registry during exit cleanup")
+        except Exception as e:
+            logger.warning("Error shutting down ApplicationManager: %s", e)
 
         try:
             cache_manager = registry.get(CacheManager)
             cache_manager.clear_cache()
         except KeyError:
-            pass
+            logger.debug("CacheManager not found in registry during exit cleanup")
+        except Exception as e:
+            logger.warning("Error clearing cache: %s", e)
 
         registry.clear()

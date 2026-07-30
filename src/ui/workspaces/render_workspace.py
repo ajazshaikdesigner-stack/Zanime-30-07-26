@@ -83,3 +83,18 @@ class RenderWorkspace(BaseWorkspace):
     def _cancel_render(self):
         if self.render_manager.active_worker:
             self.render_manager.active_worker.cancel()
+
+    def get_required_docks(self):
+        return []
+
+    def get_hidden_docks(self):
+        return [
+            "Properties",
+            "Timeline",
+            "ProjectExplorer",
+            "Console",
+            "AssetBrowser",
+            "NotificationCenter",
+            "History",
+            "Preview",
+        ]

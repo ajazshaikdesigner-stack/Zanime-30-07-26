@@ -4,10 +4,12 @@ Premium Welcome Cards for ZANIME's Welcome Workspace.
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QFrame, QGraphicsDropShadowEffect, QHBoxLayout, QLabel,
-    QPushButton, QVBoxLayout, QWidget
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QVBoxLayout,
 )
-from PySide6.QtGui import QColor
 
 
 class QuickActionButton(QPushButton):

@@ -15,8 +15,6 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QVBoxLayout,
     QWidget,
-    QFrame,
-    QGridLayout,
 )
 
 from src.core.managers.project_manager import ProjectManager
@@ -312,13 +310,15 @@ class WelcomeWorkspace(BaseWorkspace):
         if self.app:
             from src.ui.wizards.new_project_wizard import NewProjectWizard
             wizard = NewProjectWizard(registry.get(ProjectManager), self)
-            wizard.exec()
+            if wizard.exec():
+                registry.get(WorkspaceManager).set_workspace("Home")
 
     def _on_open_project(self):
-        path = QFileDialog.getExistingDirectory(self, "Open ZANIME Project Folder", "")
+        path, _ = QFileDialog.getOpenFileName(self, "Open ZANIME Project", "", "Zanime Projects (*.zanime);;All Files (*)")
         if path:
             try:
                 registry.get(ProjectManager).open_project(path)
+                registry.get(WorkspaceManager).set_workspace("Home")
             except Exception as e:
                 QMessageBox.warning(self, "Open Project", f"Could not open project:\n{e}")
 
@@ -332,13 +332,23 @@ class WelcomeWorkspace(BaseWorkspace):
 
     def _open_demo(self):
         logger.info("WelcomeWorkspace: Opening Demo Project 'The Crystal Forest'")
-        QMessageBox.information(self, "Demo Project",
-            "The Crystal Forest is downloading assets...\n\nCheck back soon — coming in v2.1!")
+        from src.core.managers.demo_manager import DemoProjectManager
+        demo_path = DemoProjectManager.ensure_demo_project()
+        try:
+            registry.get(ProjectManager).open_project(demo_path)
+            registry.get(WorkspaceManager).set_workspace("Home")
+        except Exception as e:
+            QMessageBox.warning(self, "Open Demo", f"Could not open demo project:\n{e}")
 
     def _open_project(self, data):
         logger.info(f"WelcomeWorkspace: Opening project: {data.get('name')}")
-        QMessageBox.information(self, "Open Project",
-            f"Opening '{data['name']}'...\n\n(Connect to ProjectManager to load real files.)")
+        from src.core.managers.demo_manager import DemoProjectManager
+        demo_path = DemoProjectManager.ensure_demo_project()
+        try:
+            registry.get(ProjectManager).open_project(demo_path)
+            registry.get(WorkspaceManager).set_workspace("Home")
+        except Exception as e:
+            QMessageBox.warning(self, "Open Project", f"Could not open project:\n{e}")
 
     def _on_getting_started(self):
         registry.get(WorkspaceManager).set_workspace("Home")

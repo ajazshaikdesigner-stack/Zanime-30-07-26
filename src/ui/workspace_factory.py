@@ -3,21 +3,21 @@ Factory for dynamically instantiating UI workspaces on demand.
 """
 
 import logging
+import traceback
 from collections import OrderedDict
 from typing import Any
 
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
-import traceback
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from src.ui.workspaces.animation_workspace import AnimationWorkspace
+from src.ui.workspaces.backgrounds_workspace import BackgroundsWorkspace
 from src.ui.workspaces.camera_workspace import CameraWorkspace
 from src.ui.workspaces.characters_workspace import CharactersWorkspace
-
-# Import all workspace classes so the factory can map them
 from src.ui.workspaces.home_workspace import HomeWorkspace
 from src.ui.workspaces.library_workspace import LibraryWorkspace
 from src.ui.workspaces.music_workspace import MusicWorkspace
 from src.ui.workspaces.performance_workspace import PerformanceWorkspace
+from src.ui.workspaces.props_workspace import PropsWorkspace
 from src.ui.workspaces.render_workspace import RenderWorkspace
 from src.ui.workspaces.scene_composer_workspace import SceneComposerWorkspace
 from src.ui.workspaces.script_workspace import ScriptWorkspace
@@ -66,7 +66,7 @@ class WorkspaceErrorWidget(QWidget):
 
 
 class WorkspaceFactory:
-    def __init__(self, max_cache_size: int = 5):
+    def __init__(self, max_cache_size: int = 20):
         self.max_cache_size = max_cache_size
         self._cache = OrderedDict()
         self._state_cache: dict[str, Any] = {}
@@ -76,6 +76,8 @@ class WorkspaceFactory:
             "Story": StoryWorkspace,
             "Script": ScriptWorkspace,
             "Characters": CharactersWorkspace,
+            "Backgrounds": BackgroundsWorkspace,
+            "Props": PropsWorkspace,
             "World": WorldWorkspace,
             "Storyboard": StoryboardWorkspace,
             "Camera": CameraWorkspace,
@@ -108,9 +110,8 @@ class WorkspaceFactory:
         try:
             widget = cls(app, main_window)
         except Exception as e:
-            logger.error(
-                f"WorkspaceFactory: Crash during {name} initialization: {e}",
-                exc_info=True,
+            logger.exception(
+                f"WorkspaceFactory: Crash during {name} initialization"
             )
             widget = WorkspaceErrorWidget(name, e, main_window)
 
@@ -149,7 +150,7 @@ class WorkspaceFactory:
         self.destroy_workspace(name, main_window)
         return self.get_workspace(name, app, main_window)
 
-    def cleanup_memory(self, main_window, active_workspace_name: str = None):
+    def cleanup_memory(self, main_window, active_workspace_name: str | None = None):
         """Destroys all workspaces except the active one to maximize free RAM."""
         names_to_destroy = []
         for name in list(self._cache.keys()):

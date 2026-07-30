@@ -83,6 +83,7 @@ class ProjectManager(QObject):
         self.save_project()
         self.autosave_timer.start()
         self.file_watcher.addPath(extract_path)
+        self.register_recent_project(path)
         self.event_bus.publish(Event.PROJECT_OPENED, path)
 
     def open_project(self, path: str) -> None:
@@ -105,11 +106,13 @@ class ProjectManager(QObject):
         project_json_path = os.path.join(extract_path, "project.json")
         if os.path.exists(project_json_path):
             try:
-                with open(project_json_path, "r") as f:
+                with open(project_json_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     self.project_model = ProjectModel(
                         name=data.get("name", "Unknown"),
-                        version=data.get("version", "1.0"),
+                        project_version=data.get(
+                            "project_version", data.get("version", "1.0.0")
+                        ),
                         resolution=tuple(data.get("resolution", (1920, 1080))),
                         fps=data.get("fps", 24),
                         author=data.get("author", ""),
@@ -128,17 +131,68 @@ class ProjectManager(QObject):
         self._check_recovery(extract_path)
 
         self.file_watcher.addPath(extract_path)
+        self.register_recent_project(path)
         self.event_bus.publish(Event.PROJECT_OPENED, path)
 
-    def _check_recovery(self, extract_path: str):
+    def register_recent_project(self, path: str) -> None:
+        """Registers a project path into ConfigurationManager recent_projects list."""
+        if not path or not os.path.exists(path):
+            return
+        try:
+            from src.core.managers.configuration_manager import ConfigurationManager
+            from src.core.services.service_registry import registry
+
+            config = registry.get(ConfigurationManager)
+            recents = config.get("recent_projects", [])
+            abs_path = os.path.abspath(path)
+            if abs_path in recents:
+                recents.remove(abs_path)
+            recents.insert(0, abs_path)
+            config.set("recent_projects", recents[:10])
+        except Exception as e:
+            logger.debug("Failed to register recent project '%s': %s", path, e)
+
+    def _check_recovery(self, extract_path: str) -> bool:
+        """Detects unsaved state from unexpected shutdown and automatically restores project state."""
         autosave_path = os.path.join(extract_path, "autosave", "project_autosave.json")
         project_json_path = os.path.join(extract_path, "project.json")
-        if os.path.exists(autosave_path) and os.path.exists(project_json_path):
-            if os.path.getmtime(autosave_path) > os.path.getmtime(project_json_path):
-                logger.warning(
-                    "Autosave is newer than project.json. Recovery might be needed."
-                )
-                # We could prompt user or auto-recover here.
+
+        if os.path.exists(autosave_path):
+            autosave_mtime = os.path.getmtime(autosave_path)
+            project_mtime = (
+                os.path.getmtime(project_json_path)
+                if os.path.exists(project_json_path)
+                else 0
+            )
+
+            if autosave_mtime > project_mtime:
+                try:
+                    logger.warning(
+                        "Unexpected shutdown detected: autosave is newer than project.json. Auto-restoring..."
+                    )
+                    with open(autosave_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        self.project_model = ProjectModel(
+                            name=data.get("name", "Restored Project"),
+                            project_version=data.get(
+                                "project_version", data.get("version", "1.0.0")
+                            ),
+                            resolution=tuple(data.get("resolution", (1920, 1080))),
+                            fps=data.get("fps", 24),
+                            author=data.get("author", ""),
+                            description=data.get("description", ""),
+                        )
+                    logger.info(
+                        "Crash Auto-Restore Successful: restored project model '%s'",
+                        self.project_model.name,
+                    )
+                    self.event_bus.publish(
+                        Event.PROJECT_RECOVERED, self.current_project_path
+                    )
+                    return True
+                except Exception as e:
+                    logger.error("Failed to auto-restore from autosave: %s", e)
+        return False
 
     def autosave(self) -> None:
         """Serializes current state to the autosave directory without zipping."""
@@ -150,10 +204,15 @@ class ProjectManager(QObject):
             ".zanime", ""
         )
         extract_path = os.path.join(self.temp_dir, project_name)
+        autosave_dir = os.path.join(extract_path, "autosave")
+        os.makedirs(autosave_dir, exist_ok=True)
 
-        autosave_path = os.path.join(extract_path, "autosave", "project_autosave.json")
-        with open(autosave_path, "w") as f:
-            json.dump(self.project_model.__dict__, f, indent=4)
+        autosave_path = os.path.join(autosave_dir, "project_autosave.json")
+        try:
+            with open(autosave_path, "w", encoding="utf-8") as f:
+                json.dump(self.project_model.__dict__, f, indent=4)
+        except Exception as e:
+            logger.warning("Error performing autosave: %s", e)
 
     def save_project(self) -> None:
         """Zips the temp directory back to the .zanime file."""

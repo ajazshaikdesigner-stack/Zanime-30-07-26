@@ -44,8 +44,8 @@ def test_health_check_fail_ffmpeg(health_manager, monkeypatch):
     monkeypatch.setattr(shutil, "which", lambda x: None)
 
     report = health_manager.run_all_checks()
-    assert report["status"] == "fail"
-    assert any("FFmpeg is not installed" in e for e in report["errors"])
+    assert report["status"] == "warn"
+    assert any("FFmpeg is not installed" in w for w in report["warnings"])
 
 
 def test_health_check_plugin_warning(health_manager, tmp_path):
@@ -63,3 +63,10 @@ def test_health_check_plugin_warning(health_manager, tmp_path):
     assert report["status"] == "warn"
     assert not report["errors"]
     assert any("Plugin syntax error" in w for w in report["warnings"])
+
+
+def test_health_check_fatal_checks(health_manager, monkeypatch):
+    monkeypatch.setattr(sys, "version_info", (3, 8, 0))
+    report = health_manager.run_fatal_checks()
+    assert report["status"] == "fail"
+    assert any("Python version must be >=" in e for e in report["errors"])

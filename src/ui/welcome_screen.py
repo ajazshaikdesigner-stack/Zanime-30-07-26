@@ -19,6 +19,7 @@ from PySide6.QtWidgets import (
 from src.core.managers.configuration_manager import ConfigurationManager
 from src.core.managers.notification_manager import NotificationManager
 from src.core.managers.project_manager import ProjectManager
+from src.core.managers.workspace_manager import WorkspaceManager
 from src.core.services.service_registry import registry
 
 
@@ -130,13 +131,13 @@ class WelcomeScreen(QDialog):
             self.accept()
 
     def _on_demo_project(self):
-        demo_path = os.path.abspath("projects/demo_project.zanime")
-        if os.path.exists(demo_path):
-            registry.get(ProjectManager).open_project(demo_path)
-            self._update_recents(demo_path)
-            self.accept()
-        else:
-            registry.get(NotificationManager).show_error("Demo project not found.")
+        from src.core.managers.demo_manager import DemoProjectManager
+
+        demo_path = DemoProjectManager.ensure_demo_project()
+        registry.get(ProjectManager).open_project(demo_path)
+        self._update_recents(demo_path)
+        registry.get(WorkspaceManager).set_workspace("Home")
+        self.accept()
 
     def _on_recent_clicked(self, item):
         path = item.text()

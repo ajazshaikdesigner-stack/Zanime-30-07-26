@@ -9,7 +9,7 @@ def zip_project(source_dir, output_filename):
             dirs[:] = [
                 d
                 for d in dirs
-                if d not in ("venv", "__pycache__", ".git", ".pytest_cache")
+                if d not in ("venv", "__pycache__", ".git", ".pytest_cache", ".ruff_cache")
             ]
 
             for file in files:

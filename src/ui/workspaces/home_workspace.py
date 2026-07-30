@@ -35,4 +35,13 @@ class HomeWorkspace(BaseWorkspace):
         return []
 
     def get_hidden_docks(self):
-        return ["Properties", "Timeline"]
+        return [
+            "Properties",
+            "Timeline",
+            "ProjectExplorer",
+            "Console",
+            "AssetBrowser",
+            "NotificationCenter",
+            "History",
+            "Preview",
+        ]

@@ -2,17 +2,23 @@
 Premium Status Bar with live telemetry and AI/render badges.
 """
 
+import logging
 import os
 
-import psutil
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QStatusBar, QWidget
+try:
+    import psutil
+except ImportError:
+    psutil = None
+
+from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QFrame, QLabel, QStatusBar
 
 from src.core.events.event_bus import EventBus
 from src.core.events.event_types import Event
 from src.core.managers.configuration_manager import ConfigurationManager
 from src.core.services.service_registry import registry
 
+logger = logging.getLogger(__name__)
 
 _STYLE = """
 QStatusBar {
@@ -99,8 +105,9 @@ class ZanimeStatusBar(QStatusBar):
         self.setSizeGripEnabled(False)
 
         try:
-            self.process = psutil.Process(os.getpid())
-        except Exception:
+            self.process = psutil.Process(os.getpid()) if psutil else None
+        except Exception as e:
+            logger.debug("Failed to initialize process telemetry: %s", e)
             self.process = None
 
         # ── Left side labels ──────────────────────────────────────────
@@ -137,8 +144,8 @@ class ZanimeStatusBar(QStatusBar):
         if self.app:
             try:
                 version = registry.get(ConfigurationManager).get("version", "2.0.0")
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug("Failed to load version: %s", e)
         self.version_label = QLabel(f"v{version}")
         self.version_label.setObjectName("SbVersion")
 
@@ -157,8 +164,8 @@ class ZanimeStatusBar(QStatusBar):
                 bus = registry.get(EventBus)
                 bus.subscribe(Event.PROJECT_SAVED, self._on_saved)
                 bus.subscribe(Event.APP_STARTED, lambda: self.set_status("Ready"))
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug("Failed to subscribe to event bus: %s", e)
 
         # Telemetry timer
         self.timer = QTimer(self)
@@ -193,7 +200,7 @@ class ZanimeStatusBar(QStatusBar):
         self.render_label.setStyleSheet("")
 
     def _on_saved(self, path):
-        self.set_status(f"Saved ✓")
+        self.set_status("Saved ✓")
 
     def _update_telemetry(self):
         if not self.process:
@@ -203,5 +210,5 @@ class ZanimeStatusBar(QStatusBar):
             ram = self.process.memory_info().rss / (1024 * 1024)
             self.cpu_label.setText(f"CPU: {cpu:.0f}%")
             self.ram_label.setText(f"RAM: {ram:.0f} MB")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Telemetry update error: %s", e)

@@ -62,3 +62,18 @@ class VoiceWorkspace(BaseWorkspace):
 
     def autosave(self):
         logger.info("VoiceWorkspace: Autosaving audio tracks...")
+
+    def get_required_docks(self):
+        return []
+
+    def get_hidden_docks(self):
+        return [
+            "Properties",
+            "Timeline",
+            "ProjectExplorer",
+            "Console",
+            "AssetBrowser",
+            "NotificationCenter",
+            "History",
+            "Preview",
+        ]

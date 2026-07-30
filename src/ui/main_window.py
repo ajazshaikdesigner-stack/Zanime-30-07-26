@@ -9,6 +9,7 @@ from PySide6.QtWidgets import QMainWindow, QStackedWidget, QToolBar
 
 from src.core.events.event_bus import EventBus
 from src.core.events.event_types import Event
+from src.core.managers.workspace_manager import WorkspaceManager
 from src.core.services.service_registry import registry
 from src.ui.docks.asset_browser_dock import AssetBrowserDock
 from src.ui.docks.console_dock import ConsoleDock
@@ -39,7 +40,7 @@ class ZanimeMainWindow(QMainWindow):
         self.setCentralWidget(self.workspace_stack)
 
         self.docks = {}
-        self.workspace_factory = WorkspaceFactory(max_cache_size=5)
+        self.workspace_factory = WorkspaceFactory(max_cache_size=20)
 
         self.settings = QSettings("ZanimeStudio", "Zanime_v2")
 
@@ -85,12 +86,15 @@ class ZanimeMainWindow(QMainWindow):
             dock.hide()
 
     def _setup_events(self):
-        registry.get(EventBus).subscribe(
-            Event.WORKSPACE_CHANGED, self._on_workspace_changed
-        )
-        registry.get(EventBus).subscribe(
-            Event.WORKSPACE_CHANGED, self._on_workspace_changed_sidebar
-        )
+        bus = registry.get(EventBus)
+        bus.subscribe(Event.WORKSPACE_CHANGED, self._on_workspace_changed)
+        bus.subscribe(Event.WORKSPACE_CHANGED, self._on_workspace_changed_sidebar)
+        bus.subscribe(Event.PROJECT_OPENED, self._on_project_opened)
+
+    def _on_project_opened(self, path: str):
+        wm = registry.get(WorkspaceManager)
+        if wm.active_workspace == "Welcome":
+            wm.set_workspace("Home")
 
     def _restore_window_state(self):
         from PySide6.QtWidgets import QApplication

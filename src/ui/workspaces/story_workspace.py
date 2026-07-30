@@ -2,10 +2,13 @@
 Story Workspace - The main environment for Phase 5.
 """
 
+import logging
 import time
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QMessageBox
+
+logger = logging.getLogger(__name__)
 
 from src.core.ai import ZanimeAIAPI
 from src.core.events.event_bus import EventBus
@@ -137,7 +140,7 @@ class StoryWorkspace(BaseWorkspace):
                 with open(story_path, "w") as f:
                     json.dump(data, f, indent=4)
             except Exception:
-                pass
+                logger.exception(f"Failed to save story to {story_path}")
 
     def lock_story(self):
         self.story_model.is_locked = True
@@ -146,3 +149,18 @@ class StoryWorkspace(BaseWorkspace):
         QMessageBox.information(
             self, "Story Locked", "This story has been locked for future phases."
         )
+
+    def get_required_docks(self):
+        return []
+
+    def get_hidden_docks(self):
+        return [
+            "Properties",
+            "Timeline",
+            "ProjectExplorer",
+            "Console",
+            "AssetBrowser",
+            "NotificationCenter",
+            "History",
+            "Preview",
+        ]

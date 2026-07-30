@@ -1,23 +1,12 @@
-import json
 import os
-import shutil
-import zipfile
+import sys
 
-demo_dir = "projects/demo_project"
-os.makedirs(demo_dir, exist_ok=True)
+# Ensure project root is in sys.path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-project_data = {
-    "name": "Demo Project",
-    "version": "1.0",
-    "resolution": [1920, 1080],
-    "fps": 24,
-}
+from src.core.managers.demo_manager import DemoProjectManager
 
-with open(os.path.join(demo_dir, "project.json"), "w") as f:
-    json.dump(project_data, f, indent=4)
+if __name__ == "__main__":
+    path = DemoProjectManager.generate_demo_project()
+    print(f"demo_project.zanime generated at {path}")
 
-with zipfile.ZipFile("projects/demo_project.zanime", "w", zipfile.ZIP_DEFLATED) as zipf:
-    zipf.write(os.path.join(demo_dir, "project.json"), "project.json")
-
-shutil.rmtree(demo_dir)
-print("demo_project.zanime generated.")

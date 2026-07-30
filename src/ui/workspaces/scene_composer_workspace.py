@@ -50,3 +50,18 @@ class SceneComposerWorkspace(BaseWorkspace):
 
     def autosave(self):
         logger.info("SceneComposerWorkspace: Autosaving layout...")
+
+    def get_required_docks(self):
+        return []
+
+    def get_hidden_docks(self):
+        return [
+            "Properties",
+            "Timeline",
+            "ProjectExplorer",
+            "Console",
+            "AssetBrowser",
+            "NotificationCenter",
+            "History",
+            "Preview",
+        ]

@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # The following imports occur after modifying `sys.path` intentionally.
 # They are kept here because the path mutation must happen first.  noqa: E402
 from PySide6.QtWidgets import QMessageBox  # noqa: E402
-from src.app import ZanimeApp  # noqa: E402
+from src.core.bootstrap import ApplicationBootstrap  # noqa: E402
 
 
 def global_exception_handler(exctype, value, tb):
@@ -38,19 +38,15 @@ sys.excepthook = global_exception_handler
 
 
 def main():
-    app = ZanimeApp(sys.argv)
+    bootstrap = ApplicationBootstrap(sys.argv)
+    app = bootstrap.initialize_app()
 
     from src.ui.splash_screen import SplashScreen
 
     splash = SplashScreen()
     splash.show()
 
-    _ = app.startup_manager.boot(splash)
-
-    from src.core.managers.application_manager import ApplicationManager
-    from src.core.services.service_registry import registry
-
-    registry.get(ApplicationManager).startup()
+    _ = bootstrap.boot(splash)
     sys.exit(app.exec())
 
 
