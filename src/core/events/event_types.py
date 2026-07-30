@@ -47,3 +47,27 @@ class Event(Enum):
     AI_COPILOT_MESSAGE = auto()
     # Consistency
     AI_CONSISTENCY_UPDATED = auto()
+
+    # Camera System
+    CAMERA_SWITCHED = auto()
+    CAMERA_KEYFRAME_ADDED = auto()
+    CAMERA_SWITCH_RECORDED = auto()
+
+    # Timeline System
+    TIMELINE_MARKER_ADDED = auto()
+    TIMELINE_TRACK_ADDED = auto()
+    TIMELINE_CLIP_MOVED = auto()
+
+    # Node Graph
+    NODE_GRAPH_EXECUTED = auto()
+    NODE_CREATED = auto()
+
+    # VFX & Compositing
+    VFX_EFFECT_APPLIED = auto()
+    COMPOSITING_LAYER_CHANGED = auto()
+
+    # Render & Audio
+    RENDER_JOB_QUEUED = auto()
+    RENDER_FRAME_COMPLETED = auto()
+    AUDIO_TRACK_MUTED = auto()
+

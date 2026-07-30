@@ -13,9 +13,11 @@ from src.ui.workspaces.animation_workspace import AnimationWorkspace
 from src.ui.workspaces.backgrounds_workspace import BackgroundsWorkspace
 from src.ui.workspaces.camera_workspace import CameraWorkspace
 from src.ui.workspaces.characters_workspace import CharactersWorkspace
+from src.ui.workspaces.compositing_workspace import CompositingWorkspace
 from src.ui.workspaces.home_workspace import HomeWorkspace
 from src.ui.workspaces.library_workspace import LibraryWorkspace
 from src.ui.workspaces.music_workspace import MusicWorkspace
+from src.ui.workspaces.node_graph_workspace import NodeGraphWorkspace
 from src.ui.workspaces.performance_workspace import PerformanceWorkspace
 from src.ui.workspaces.props_workspace import PropsWorkspace
 from src.ui.workspaces.render_workspace import RenderWorkspace
@@ -25,6 +27,7 @@ from src.ui.workspaces.settings_workspace import SettingsWorkspace
 from src.ui.workspaces.story_workspace import StoryWorkspace
 from src.ui.workspaces.storyboard_workspace import StoryboardWorkspace
 from src.ui.workspaces.tutorial_workspace import TutorialWorkspace
+from src.ui.workspaces.vfx_workspace import VFXWorkspace
 from src.ui.workspaces.voice_workspace import VoiceWorkspace
 from src.ui.workspaces.welcome_workspace import WelcomeWorkspace
 from src.ui.workspaces.world_workspace import WorldWorkspace
@@ -82,6 +85,9 @@ class WorkspaceFactory:
             "Storyboard": StoryboardWorkspace,
             "Camera": CameraWorkspace,
             "SceneComposer": SceneComposerWorkspace,
+            "NodeGraph": NodeGraphWorkspace,
+            "VFX": VFXWorkspace,
+            "Compositing": CompositingWorkspace,
             "Animation": AnimationWorkspace,
             "Voice": VoiceWorkspace,
             "Music": MusicWorkspace,
