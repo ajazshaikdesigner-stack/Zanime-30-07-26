@@ -136,7 +136,9 @@ class ZanimeMainWindow(QMainWindow):
         if hasattr(menu_bar, "dock_actions"):
             for dock_id, action in menu_bar.dock_actions.items():
                 if dock_id in self.docks:
+                    action.blockSignals(True)
                     action.setChecked(self.docks[dock_id].isVisible())
+                    action.blockSignals(False)
 
     def _on_workspace_changed(self, workspace_name: str):
         try:

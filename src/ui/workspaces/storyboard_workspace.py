@@ -39,6 +39,7 @@ class StoryboardWorkspace(BaseWorkspace):
         self.addDockWidget(Qt.LeftDockWidgetArea, self.list_dock)
         self.addDockWidget(Qt.RightDockWidgetArea, self.properties_dock)
         self.addDockWidget(Qt.BottomDockWidgetArea, self.timeline_dock)
+        self.addDockWidget(Qt.BottomDockWidgetArea, self.console_dock)
 
         self.tabifyDockWidget(self.timeline_dock, self.console_dock)
         self.timeline_dock.raise_()

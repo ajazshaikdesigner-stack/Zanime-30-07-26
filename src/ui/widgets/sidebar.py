@@ -2,9 +2,9 @@
 Premium vertical sidebar for switching workspaces.
 """
 
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QButtonGroup, QLabel, QSizePolicy, QToolBar, QToolButton, QWidget,
+    QButtonGroup, QLabel, QPushButton, QToolBar, QWidget,
     QVBoxLayout, QFrame
 )
 
@@ -24,40 +24,41 @@ QToolBar#Sidebar {
 /* Section label */
 QLabel#SidebarSection {
     color: #475569;
-    font-size: 7pt;
+    font-size: 7.5pt;
     font-weight: bold;
     letter-spacing: 1.5px;
-    padding: 10px 16px 4px 16px;
+    padding: 12px 18px 4px 18px;
     background: transparent;
     text-transform: uppercase;
 }
 
-/* Nav buttons */
-QToolButton#SidebarBtn {
+/* Nav buttons - aligned cleanly to left */
+QPushButton#SidebarBtn {
     border: none;
     border-radius: 8px;
-    padding: 9px 14px 9px 14px;
+    padding-left: 18px;
     margin: 2px 8px;
-    font-size: 9pt;
+    font-size: 9.5pt;
     font-weight: 500;
     color: #94a3b8;
     text-align: left;
     background-color: transparent;
 }
 
-QToolButton#SidebarBtn:hover {
+QPushButton#SidebarBtn:hover {
     background-color: #22253a;
     color: #e2e8f0;
 }
 
-QToolButton#SidebarBtn:checked {
+QPushButton#SidebarBtn:checked {
     background-color: #1e1633;
     color: #a78bfa;
     border-left: 3px solid #7c3aed;
-    padding-left: 11px;
+    padding-left: 15px;
+    font-weight: bold;
 }
 
-QToolButton#SidebarBtn:checked:hover {
+QPushButton#SidebarBtn:checked:hover {
     background-color: #251e3d;
 }
 
@@ -96,17 +97,15 @@ WORKSPACES = [
 ]
 
 
-class _SidebarButton(QToolButton):
+class _SidebarButton(QPushButton):
     def __init__(self, ws_id, label, emoji, parent=None):
         super().__init__(parent)
         self.ws_id = ws_id
-        self.setText(f"  {emoji}  {label}")
+        self.setText(f"{emoji}   {label}")
         self.setCheckable(True)
         self.setObjectName("SidebarBtn")
-        self.setToolButtonStyle(Qt.ToolButtonTextOnly)
-        self.setMinimumWidth(190)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.setFixedHeight(38)
+        self.setCursor(Qt.PointingHandCursor)
         self.setToolTip(label)
 
 
@@ -132,7 +131,7 @@ class ZanimeSidebar(QToolBar):
         logo_widget.setObjectName("SidebarLogo")
         logo_widget.setStyleSheet("background: transparent;")
         logo_layout = QVBoxLayout(logo_widget)
-        logo_layout.setContentsMargins(14, 14, 14, 8)
+        logo_layout.setContentsMargins(18, 16, 18, 8)
         logo_lbl = QLabel("ZANIME")
         logo_lbl.setStyleSheet(
             "font-size: 16pt; font-weight: 900; color: #7c3aed; "
@@ -140,7 +139,7 @@ class ZanimeSidebar(QToolBar):
         )
         sub_lbl = QLabel("Animation Studio")
         sub_lbl.setStyleSheet(
-            "font-size: 7pt; color: #475569; letter-spacing: 1px; background: transparent;"
+            "font-size: 7.5pt; color: #475569; letter-spacing: 1px; background: transparent;"
         )
         logo_layout.addWidget(logo_lbl)
         logo_layout.addWidget(sub_lbl)
@@ -180,4 +179,8 @@ class ZanimeSidebar(QToolBar):
     def set_active(self, workspace_name: str):
         """Programmatically check the button for the given workspace."""
         if workspace_name in self._buttons:
-            self._buttons[workspace_name].setChecked(True)
+            btn = self._buttons[workspace_name]
+            if not btn.isChecked():
+                btn.blockSignals(True)
+                btn.setChecked(True)
+                btn.blockSignals(False)

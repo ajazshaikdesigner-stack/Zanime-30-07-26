@@ -35,16 +35,15 @@ class LayoutManager:
         if not self.main_window:
             return False
 
-        layouts = self.config_manager.get("layouts", {})
-        if workspace_name in layouts:
-            state_b64 = layouts[workspace_name]
-            state = QByteArray.fromBase64(state_b64.encode("utf-8"))
-            restored = self.main_window.restoreState(state)
-            if restored:
-                logger.debug(f"Restored layout for workspace: {workspace_name}")
-                return True
-            else:
-                logger.warning(
-                    f"Failed to restore layout for workspace: {workspace_name}"
-                )
+        try:
+            layouts = self.config_manager.get("layouts", {})
+            if workspace_name in layouts:
+                state_b64 = layouts[workspace_name]
+                state = QByteArray.fromBase64(state_b64.encode("utf-8"))
+                restored = self.main_window.restoreState(state)
+                if restored:
+                    logger.debug(f"Restored layout for workspace: {workspace_name}")
+                    return True
+        except Exception as e:
+            logger.warning(f"Error restoring layout for workspace {workspace_name}: {e}")
         return False

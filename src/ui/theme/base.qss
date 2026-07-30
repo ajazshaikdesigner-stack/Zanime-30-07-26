@@ -6,10 +6,11 @@
 QWidget {
     background-color: @bg_color;
     color: @fg_color;
-    font-family: "@font_family", "Segoe UI", Arial, sans-serif;
+    font-family: @font_family, Segoe UI, Arial, sans-serif;
     font-size: @font_size;
     selection-background-color: @accent_color;
     selection-color: #ffffff;
+    outline: none;
 }
 
 QMainWindow {
@@ -38,7 +39,8 @@ QMenuBar::item {
     font-size: 9pt;
 }
 
-QMenuBar::item:selected {
+QMenuBar::item:selected,
+QMenuBar::item:pressed {
     background-color: @bg_hover;
     color: @fg_color;
 }
@@ -54,12 +56,14 @@ QMenu {
     border: 1px solid @border_bright;
     border-radius: 8px;
     padding: 6px 4px;
+    menu-scrollable: 1;
 }
 
 QMenu::item {
     padding: 7px 30px 7px 16px;
     border-radius: 4px;
     color: @fg_color;
+    background-color: transparent;
     font-size: 9pt;
 }
 
@@ -70,6 +74,7 @@ QMenu::item:selected {
 
 QMenu::item:disabled {
     color: @fg_subtle;
+    background-color: transparent;
 }
 
 QMenu::separator {
