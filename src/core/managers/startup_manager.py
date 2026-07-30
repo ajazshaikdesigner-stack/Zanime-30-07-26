@@ -106,7 +106,7 @@ class StartupManager:
 
         from src.core.managers.notification_manager import NotificationManager
 
-        registry.register(NotificationManager, NotificationManager())
+        registry.register(NotificationManager, NotificationManager(event_bus))
 
         update_splash(50, "Loading Assets...")
         registry.register(CacheManager, CacheManager())
@@ -150,6 +150,8 @@ class StartupManager:
         window_manager.set_main_window(main_window)
         layout_manager.main_window = main_window
         main_window.show()
+        main_window.raise_()
+        main_window.activateWindow()
 
         if splash:
             splash.finish(main_window)

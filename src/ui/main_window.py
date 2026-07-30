@@ -90,11 +90,22 @@ class ZanimeMainWindow(QMainWindow):
         )
 
     def _restore_window_state(self):
+        from PySide6.QtWidgets import QApplication
+
         geometry = self.settings.value("geometry")
         state = self.settings.value("windowState")
 
         if geometry:
             self.restoreGeometry(geometry)
+            # Guard against off-screen position (e.g. disconnected monitor)
+            screen = QApplication.primaryScreen().availableGeometry()
+            if not screen.intersects(self.geometry()):
+                logger.warning("Window geometry was off-screen; resetting to default.")
+                self.resize(1280, 720)
+                self.move(
+                    screen.center().x() - 640,
+                    screen.center().y() - 360,
+                )
         else:
             self.resize(1280, 720)
 

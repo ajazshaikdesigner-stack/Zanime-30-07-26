@@ -15,7 +15,7 @@ class WorkspaceManager:
     def __init__(self, event_bus: EventBus, layout_manager: LayoutManager):
         self.event_bus = event_bus
         self.layout_manager = layout_manager
-        self.active_workspace: str = "Welcome"
+        self.active_workspace: str = None
 
     def set_workspace(self, workspace_name: str) -> None:
         """Changes the active workspace and publishes an event for the UI."""
@@ -25,7 +25,7 @@ class WorkspaceManager:
             )
 
             # Save layout of current workspace before switching
-            if self.active_workspace not in ("Home", "Welcome"):
+            if self.active_workspace and self.active_workspace not in ("Home", "Welcome"):
                 self.layout_manager.save_layout(self.active_workspace)
 
             self.active_workspace = workspace_name

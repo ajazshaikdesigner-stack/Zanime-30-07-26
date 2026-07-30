@@ -37,6 +37,8 @@ class LoggingManager:
             when="midnight",
             interval=1,
             backupCount=7,
+            encoding="utf-8",
+            delay=True,
         )
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(formatter)
@@ -56,6 +58,8 @@ class LoggingManager:
             when="midnight",
             interval=1,
             backupCount=7,
+            encoding="utf-8",
+            delay=True,
         )
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)

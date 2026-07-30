@@ -42,8 +42,8 @@ class HealthCheckManager:
 
     def _check_ffmpeg(self, report):
         if not shutil.which("ffmpeg"):
-            report["errors"].append(
-                "FFmpeg is not installed or not in PATH. Required for video/audio processing."
+            report["warnings"].append(
+                "FFmpeg is not installed or not in PATH. Video/audio export features will be disabled."
             )
 
     def _check_directories(self, report):
