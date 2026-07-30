@@ -8,6 +8,7 @@ import os
 import shutil
 import tempfile
 import zipfile
+from contextlib import contextmanager
 
 from PySide6.QtCore import QFileSystemWatcher, QObject, QTimer
 
@@ -99,8 +100,15 @@ class ProjectManager(QObject):
         project_name = os.path.basename(path).replace(".zanime", "")
         extract_path = os.path.join(self.temp_dir, project_name)
 
-        with zipfile.ZipFile(path, "r") as zip_ref:
-            zip_ref.extractall(extract_path)
+        try:
+            with zipfile.ZipFile(path, "r") as zip_ref:
+                zip_ref.extractall(extract_path)
+        except (zipfile.BadZipFile, OSError) as e:
+            logger.error("Failed to open project archive '%s': %s", path, e)
+            raise RuntimeError(
+                f"Could not open project file: {e}\n"
+                "The file may be corrupt or inaccessible."
+            ) from e
 
         # Parse project.json
         project_json_path = os.path.join(extract_path, "project.json")
@@ -118,7 +126,7 @@ class ProjectManager(QObject):
                         author=data.get("author", ""),
                         description=data.get("description", ""),
                     )
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.error(f"Failed to read project.json: {e}")
         else:
             self.project_model = ProjectModel(name=project_name)
@@ -149,7 +157,7 @@ class ProjectManager(QObject):
                 recents.remove(abs_path)
             recents.insert(0, abs_path)
             config.set("recent_projects", recents[:10])
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.debug("Failed to register recent project '%s': %s", path, e)
 
     def _check_recovery(self, extract_path: str) -> bool:
@@ -190,7 +198,7 @@ class ProjectManager(QObject):
                         Event.PROJECT_RECOVERED, self.current_project_path
                     )
                     return True
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     logger.error("Failed to auto-restore from autosave: %s", e)
         return False
 
@@ -211,7 +219,7 @@ class ProjectManager(QObject):
         try:
             with open(autosave_path, "w", encoding="utf-8") as f:
                 json.dump(self.project_model.__dict__, f, indent=4)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning("Error performing autosave: %s", e)
 
     def save_project(self) -> None:
@@ -241,8 +249,14 @@ class ProjectManager(QObject):
 
         # Write project.json
         project_json_path = os.path.join(extract_path, "project.json")
-        with open(project_json_path, "w") as f:
-            json.dump(self.project_model.__dict__, f, indent=4)
+        try:
+            with open(project_json_path, "w", encoding="utf-8") as f:
+                json.dump(self.project_model.__dict__, f, indent=4)
+        except OSError as e:
+            logger.error("Failed to write project.json during save: %s", e)
+            raise RuntimeError(
+                f"Could not write project file: {e}"
+            ) from e
 
         # Zip it up (excluding cache and autosave to save space/time)
         with zipfile.ZipFile(
@@ -274,8 +288,10 @@ class ProjectManager(QObject):
         self.autosave_timer.stop()
         if self.file_watcher.directories():
             self.file_watcher.removePaths(self.file_watcher.directories())
+        closed_path = self.current_project_path
         self.current_project_path = None
         self.project_model = None
+        self.event_bus.publish(Event.PROJECT_CLOSED, closed_path)
 
     def delete_project(self, path: str) -> None:
         if self.current_project_path == path:
@@ -337,7 +353,7 @@ class ProjectManager(QObject):
                 return False
         return True
 
-    from contextlib import contextmanager
+    from contextlib import contextmanager  # noqa: F401 — kept for SDK compatibility
 
     @contextmanager
     def processing_lock(self):

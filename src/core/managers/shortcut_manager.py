@@ -36,6 +36,6 @@ class ShortcutManager:
             try:
                 self._shortcuts[chord]()
                 return True
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.error(f"Error executing shortcut {chord}: {e}")
         return False

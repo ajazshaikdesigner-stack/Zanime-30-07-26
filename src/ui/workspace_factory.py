@@ -119,7 +119,7 @@ class WorkspaceFactory:
         if name in self._state_cache and hasattr(widget, "restore_state"):
             try:
                 widget.restore_state(self._state_cache[name])
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.error(f"Failed to restore state for {name}: {e}")
 
         self._cache[name] = widget
@@ -137,7 +137,7 @@ class WorkspaceFactory:
         if hasattr(widget, "save_state"):
             try:
                 self._state_cache[name] = widget.save_state()
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.error(f"Failed to save state for {name}: {e}")
 
         logger.info(f"WorkspaceFactory: Ejecting {name} to reclaim memory.")

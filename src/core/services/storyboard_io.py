@@ -3,8 +3,11 @@ Storyboard IO
 """
 
 import json
+import logging
 
 from src.models.storyboard_model import StoryboardModel
+
+logger = logging.getLogger(__name__)
 
 
 class StoryboardIO:
@@ -22,7 +25,8 @@ class StoryboardIO:
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
             return True
-        except Exception:
+        except Exception:  # noqa: BLE001
+            logger.exception("StoryboardIO: Failed to export JSON to %s", path)
             return False
 
     @staticmethod
@@ -32,5 +36,6 @@ class StoryboardIO:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(f"PDF EXPORT: {model.title}")
             return True
-        except Exception:
+        except Exception:  # noqa: BLE001
+            logger.exception("StoryboardIO: Failed to export PDF to %s", path)
             return False

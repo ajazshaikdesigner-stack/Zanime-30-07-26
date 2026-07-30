@@ -20,7 +20,7 @@ class StoryHistoryDock(BaseDock):
     def update_history(self, history):
         self.history_list.clear()
         for ver in reversed(history):
-            time_str = datetime.datetime.fromtimestamp(ver.timestamp).strftime(
+            time_str = datetime.datetime.fromtimestamp(ver.timestamp, tz=datetime.timezone.utc).strftime(
                 "%Y-%m-%d %H:%M:%S"
             )
             self.history_list.addItem(f"{time_str} - {ver.ai_model}")

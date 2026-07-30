@@ -86,9 +86,9 @@ class HealthCheckManager(QObject):
         self._worker.start()
 
     def _check_python_version(self, report):
-        if sys.version_info < (3, 9):
+        if sys.version_info < (3, 10):  # noqa: UP036
             report["errors"].append(
-                f"Python version must be >= 3.9 (Found {sys.version_info[0]}.{sys.version_info[1]})"
+                f"Python version must be >= 3.10 (Found {sys.version_info[0]}.{sys.version_info[1]})"
             )
 
     def _check_ffmpeg(self, report):
@@ -103,7 +103,7 @@ class HealthCheckManager(QObject):
             if not os.path.exists(d):
                 try:
                     os.makedirs(d)
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     report["errors"].append(
                         f"Failed to create required directory '{d}': {e}"
                     )
@@ -116,7 +116,7 @@ class HealthCheckManager(QObject):
             with open(test_file, "w") as f:
                 f.write("test")
             os.remove(test_file)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             report["errors"].append(
                 f"Application lacks write permissions in current directory: {e}"
             )
@@ -135,7 +135,7 @@ class HealthCheckManager(QObject):
                     ast.parse(source)
                 except SyntaxError as e:
                     report["warnings"].append(f"Plugin syntax error in {filename}: {e}")
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     report["warnings"].append(f"Could not read plugin {filename}: {e}")
 
     def _generate_report(self, report):
@@ -146,5 +146,5 @@ class HealthCheckManager(QObject):
         try:
             with open(report_path, "w") as f:
                 json.dump(report, f, indent=4)
-        except Exception:
-            pass
+        except Exception:  # noqa: BLE001
+            logger.debug("HealthCheckManager: Could not write health report to disk.")

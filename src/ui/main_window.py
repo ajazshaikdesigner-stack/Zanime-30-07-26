@@ -120,7 +120,15 @@ class ZanimeMainWindow(QMainWindow):
             self.restoreState(state)
 
     def closeEvent(self, event):
-        """Save state before closing."""
+        """Unsubscribe from event bus and save state before closing."""
+        try:
+            bus = registry.get(EventBus)
+            bus.unsubscribe(Event.WORKSPACE_CHANGED, self._on_workspace_changed)
+            bus.unsubscribe(Event.WORKSPACE_CHANGED, self._on_workspace_changed_sidebar)
+            bus.unsubscribe(Event.PROJECT_OPENED, self._on_project_opened)
+        except KeyError:
+            pass  # Registry already cleared during shutdown
+
         self.settings.setValue("geometry", self.saveGeometry())
         self.settings.setValue("windowState", self.saveState())
 
@@ -170,7 +178,7 @@ class ZanimeMainWindow(QMainWindow):
                 for dock_name in hid:
                     if dock_name in self.docks:
                         self.docks[dock_name].hide()
-        except Exception as e:
-            logger.error(
-                f"Workspace change failed for '{workspace_name}': {e}", exc_info=True
+        except Exception:
+            logger.exception(
+                "Workspace change failed for '%s'", workspace_name
             )

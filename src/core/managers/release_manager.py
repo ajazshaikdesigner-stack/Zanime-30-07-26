@@ -4,6 +4,7 @@ Release Managers - Handling Backups, Crashes, Updates, and Licensing
 
 import datetime
 import logging
+import os
 
 from src.models.release_model import BackupSnapshot, LicenseTier, SystemDiagnosticReport
 
@@ -15,8 +16,10 @@ class BackupManager:
         self.snapshots: list[BackupSnapshot] = []
 
     def create_backup(self, project_name: str, is_auto: bool = False) -> BackupSnapshot:
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        path = f"C:/Backups/Zanime/{project_name}_{timestamp.replace(':', '-')}.zip"
+        timestamp = datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        backup_dir = os.path.join(os.path.expanduser("~"), "Zanime", "Backups")
+        safe_ts = timestamp.replace(":", "-")
+        path = os.path.join(backup_dir, f"{project_name}_{safe_ts}.zip")
         snap = BackupSnapshot(timestamp, project_name, path, is_auto)
         self.snapshots.append(snap)
         logger.info(f"Created backup snapshot at {path}")

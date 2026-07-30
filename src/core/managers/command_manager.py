@@ -30,7 +30,7 @@ class CommandManager:
                 self._undo_stack.pop(0)
 
             logger.debug(f"Executed command: {command.name}")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Failed to execute command {command.name}: {e}")
 
     def undo(self) -> None:
@@ -44,7 +44,7 @@ class CommandManager:
             self._redo_stack.append(command)
             logger.debug(f"Undid command: {command.name}")
             self.event_bus.publish(Event.UNDO_EXECUTED)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Failed to undo command {command.name}: {e}")
 
     def redo(self) -> None:
@@ -58,5 +58,5 @@ class CommandManager:
             self._undo_stack.append(command)
             logger.debug(f"Redid command: {command.name}")
             self.event_bus.publish(Event.REDO_EXECUTED)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Failed to redo command {command.name}: {e}")

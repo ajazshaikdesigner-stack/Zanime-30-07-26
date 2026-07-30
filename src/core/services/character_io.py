@@ -21,8 +21,8 @@ class CharacterIO:
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
             return True
-        except Exception as e:
-            logger.exception("Failed to export character JSON to %s: %s", path, e)
+        except Exception:
+            logger.exception("Failed to export character JSON to %s", path)
             return False
 
     @staticmethod
@@ -36,6 +36,6 @@ class CharacterIO:
                 model.dna.age = data.get("age", 18)
                 model.dna.gender = data.get("gender", "Unknown")
                 model.is_favorite = data.get("favorite", False)
-        except Exception as e:
-            logger.exception("Failed to import character JSON from %s: %s", path, e)
+        except Exception:
+            logger.exception("Failed to import character JSON from %s", path)
         return model

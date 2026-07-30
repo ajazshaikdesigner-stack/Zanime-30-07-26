@@ -31,6 +31,14 @@ class ConfigurationManager:
             return self.app_config[key]
         return default
 
+    def get_user(self, key: str, default: Any = None) -> Any:
+        """Reads directly from user config (bypasses project/app config priority)."""
+        return self.user_config.get(key, default)
+
+    def set(self, key: str, value: Any) -> None:
+        """Alias for set_user() — writes to user config and persists to disk."""
+        self.set_user(key, value)
+
     def set_user(self, key: str, value: Any) -> None:
         self.user_config[key] = value
         self.save_user_config()
@@ -40,7 +48,7 @@ class ConfigurationManager:
         try:
             with open(path, "w") as f:
                 json.dump(self.user_config, f, indent=4)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Failed to save user config: {e}")
 
     def load_defaults(self):
@@ -51,7 +59,7 @@ class ConfigurationManager:
             try:
                 with open(user_config_path, "r") as f:
                     self.user_config = json.load(f)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.error(f"Failed to load user config: {e}")
                 self._load_fallback_user_config()
         else:

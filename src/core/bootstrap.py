@@ -4,7 +4,6 @@ Dedicated Application Bootstrap Class for orchestrating ZANIME initialization, m
 
 import logging
 import os
-from typing import Optional
 
 from PySide6.QtCore import QThreadPool
 from PySide6.QtWidgets import QMessageBox
@@ -38,7 +37,7 @@ class ApplicationBootstrap:
     def __init__(self, sys_argv: list[str]):
         self.sys_argv = sys_argv
         self.app = None
-        self.splash: Optional[SplashScreen] = None
+        self.splash: SplashScreen | None = None
 
     def initialize_app(self):
         """Instantiates QApplication instance and connects teardown hooks."""
@@ -49,7 +48,7 @@ class ApplicationBootstrap:
         app.aboutToQuit.connect(self.shutdown)
         return app
 
-    def boot(self, splash: Optional[SplashScreen] = None):
+    def boot(self, splash: SplashScreen | None = None):
         """Executes full application bootstrap sequence and returns main window."""
         if not self.app:
             self.initialize_app()
@@ -187,7 +186,7 @@ class ApplicationBootstrap:
             app_manager.shutdown()
         except KeyError:
             logger.debug("ApplicationManager not found during shutdown")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning("Error shutting down ApplicationManager: %s", e)
 
         try:
@@ -195,7 +194,7 @@ class ApplicationBootstrap:
             cache_manager.clear_cache()
         except KeyError:
             logger.debug("CacheManager not found during shutdown")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning("Error clearing cache: %s", e)
 
         registry.clear()

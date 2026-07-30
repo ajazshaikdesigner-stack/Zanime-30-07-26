@@ -44,6 +44,6 @@ class LayoutManager:
                 if restored:
                     logger.debug(f"Restored layout for workspace: {workspace_name}")
                     return True
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning(f"Error restoring layout for workspace {workspace_name}: {e}")
         return False

@@ -18,6 +18,7 @@ def test_full_application_smoke():
     """
 
     am = AssetManager()
+    am._bootstrap_event.wait(timeout=5.0)
     assert len(am._assets) > 0  # Default payload loads
 
     pm = PerformanceManager()

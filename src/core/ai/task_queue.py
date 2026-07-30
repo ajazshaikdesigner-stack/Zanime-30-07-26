@@ -30,9 +30,9 @@ class AITask(QRunnable):
         # Prevent the QRunnable from being auto-deleted by the thread pool
         try:
             self.setAutoDelete(False)
-        except Exception:
+        except Exception:  # noqa: BLE001
             # setAutoDelete may not be available in some PySide bindings; ignore safely
-            pass
+            logger.debug("AITask: setAutoDelete not available in this PySide binding; ignored.")
         self.is_cancelled = False
         self.is_paused = False
 
@@ -52,7 +52,7 @@ class AITask(QRunnable):
 
             result = self.provider.execute(self.prompt, self.params)
             self._safe_emit(self.signals.finished, self.task_id, result)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self._safe_emit(self.signals.error, self.task_id, str(e))
 
     def _safe_emit(self, signal, *args):

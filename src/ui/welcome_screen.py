@@ -116,10 +116,9 @@ class WelcomeScreen(QDialog):
         from src.ui.wizards.new_project_wizard import NewProjectWizard
 
         wizard = NewProjectWizard(registry.get(ProjectManager), self)
-        if wizard.exec():
-            if registry.get(ProjectManager).current_project_path:
-                self._update_recents(registry.get(ProjectManager).current_project_path)
-                self.accept()
+        if wizard.exec() and registry.get(ProjectManager).current_project_path:
+            self._update_recents(registry.get(ProjectManager).current_project_path)
+            self.accept()
 
     def _on_open_project(self):
         path, _ = QFileDialog.getOpenFileName(

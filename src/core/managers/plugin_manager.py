@@ -86,16 +86,16 @@ class PluginManager:
                         if (
                             isinstance(target, ast.Name)
                             and target.id == "PLUGIN_METADATA"
+                            and isinstance(node.value, ast.Dict)
                         ):
-                            if isinstance(node.value, ast.Dict):
-                                metadata = ast.literal_eval(node.value)
-                                break
+                            metadata = ast.literal_eval(node.value)
+                            break
             # Returning an empty dict is fine if no metadata exists, it just means it passed structural validation.
             return metadata
         except SyntaxError as e:
             self._report_error(module_name, f"SyntaxError: {e}")
             return None
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self._report_error(module_name, f"ValidationError: {e}")
             return None
 
@@ -113,7 +113,7 @@ class PluginManager:
                 logger.info(f"Successfully loaded plugin: {module_name}")
             else:
                 self._report_error(module_name, "Missing initialize() function")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self._report_error(module_name, f"Crash during load: {e}")
 
     def _report_error(self, module_name: str, reason: str):
@@ -130,5 +130,9 @@ class PluginManager:
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
 
-        with open(os.path.join(log_dir, "plugin_report.json"), "w") as f:
-            f.write(report_str)
+        report_path = os.path.join(log_dir, "plugin_report.json")
+        try:
+            with open(report_path, "w") as f:
+                f.write(report_str)
+        except OSError as e:  # noqa: BLE001
+            logger.warning("PluginManager: Could not write plugin report to disk: %s", e)

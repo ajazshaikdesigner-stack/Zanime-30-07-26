@@ -19,7 +19,7 @@ class ServiceRegistry:
                 cls._instance = super().__new__(cls)
                 cls._instance._services: dict[type, Any] = {}
                 cls._instance._factories: dict[type, Callable[[], Any]] = {}
-                cls._instance._service_lock = threading.Lock()
+                cls._instance._service_lock = threading.RLock()
         return cls._instance
 
     def register(self, service_class: type[T], instance: T):

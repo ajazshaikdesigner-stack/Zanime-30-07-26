@@ -1,8 +1,9 @@
 """
-Cache Manager - Implements LRU logic to prevent memory overflow.
+Cache Manager - Implements LRU logic using OrderedDict to prevent memory overflow.
 """
 
 import logging
+from collections import OrderedDict
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -11,31 +12,28 @@ logger = logging.getLogger(__name__)
 class CacheManager:
     def __init__(self, max_items: int = 1000):
         self.max_items = max_items
-        self._cache: dict[str, Any] = {}
-        self._access_order: list[str] = []
+        # OrderedDict gives O(1) move-to-end for LRU tracking
+        self._cache: OrderedDict[str, Any] = OrderedDict()
 
     def set(self, key: str, value: Any):
         if key in self._cache:
-            self._access_order.remove(key)
-        elif len(self._cache) >= self.max_items:
-            # Evict least recently used (first item)
-            evicted_key = self._access_order.pop(0)
-            del self._cache[evicted_key]
-            logger.debug(f"Cache evicted: {evicted_key}")
-
+            # Refresh position: move to end (most recently used)
+            self._cache.move_to_end(key)
+        else:
+            if len(self._cache) >= self.max_items:
+                # Evict least recently used (first item)
+                evicted_key, _ = self._cache.popitem(last=False)
+                logger.debug("Cache evicted: %s", evicted_key)
         self._cache[key] = value
-        self._access_order.append(key)
 
     def get(self, key: str) -> Any:
         if key in self._cache:
-            self._access_order.remove(key)
-            self._access_order.append(key)
+            self._cache.move_to_end(key)
             return self._cache[key]
         return None
 
     def clear(self):
         self._cache.clear()
-        self._access_order.clear()
         logger.info("Cache forcefully cleared.")
 
     def get_size_mock_mb(self) -> float:

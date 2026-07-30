@@ -3,6 +3,9 @@ Asset Manager - Central registry and Search Engine for content.
 """
 
 import logging
+import threading
+
+from PySide6.QtCore import QRunnable, QThreadPool
 
 from src.models.asset_model import AssetCollection, AssetMetadata, AssetType
 
@@ -13,7 +16,15 @@ class AssetManager:
     def __init__(self):
         self._assets: dict[str, AssetMetadata] = {}
         self.collections: list[AssetCollection] = []
-        self._bootstrap_mock_content()
+        self._is_bootstrapped = False
+        self._bootstrap_event = threading.Event()
+        # Defer mock content generation to a background thread to keep startup fast
+        self._trigger_bootstrap()
+
+    def _trigger_bootstrap(self):
+        """Submits mock asset generation to the global thread pool."""
+        runnable = QRunnable.create(self._bootstrap_mock_content)
+        QThreadPool.globalInstance().start(runnable)
 
     def get_icon(self, name: str):
         from PySide6.QtGui import QIcon
@@ -62,6 +73,8 @@ class AssetManager:
             self._assets[a.uuid] = a
 
         self.collections.append(AssetCollection("Favorites"))
+        self._is_bootstrapped = True
+        self._bootstrap_event.set()
 
     def search(
         self,
@@ -71,6 +84,9 @@ class AssetManager:
         limit: int = 100,
     ) -> list[AssetMetadata]:
         """Highly optimized indexing search engine (mocked implementation)"""
+        # Wait for background bootstrap if not yet complete (max 2 seconds)
+        if not self._is_bootstrapped:
+            self._bootstrap_event.wait(timeout=2.0)
         results = []
         q = query.lower()
 

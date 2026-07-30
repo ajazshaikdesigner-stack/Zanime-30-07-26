@@ -193,14 +193,14 @@ class ZanimeToolBar(QToolBar):
                 wm = registry.get(WorkspaceManager)
                 if wm.active_workspace == "Welcome":
                     wm.set_workspace("Home")
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 QMessageBox.warning(self, "Open Project", f"Could not open project:\n{e}")
 
     def _on_save(self):
         if self.app:
             try:
                 registry.get(ProjectManager).save_project()
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 from PySide6.QtWidgets import QMessageBox
                 QMessageBox.warning(self, "Save", f"Could not save:\n{e}")
 

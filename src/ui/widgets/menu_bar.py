@@ -240,14 +240,14 @@ class ZanimeMenuBar(QMenuBar):
                 wm = registry.get(WorkspaceManager)
                 if wm.active_workspace == "Welcome":
                     wm.set_workspace("Home")
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 QMessageBox.warning(self, "Open Project", f"Could not open project:\n{e}")
 
     def _on_save_project(self):
         if self.app:
             try:
                 registry.get(ProjectManager).save_project()
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 QMessageBox.warning(self, "Save", f"Could not save project:\n{e}")
 
     def _on_save_as(self):
@@ -255,7 +255,7 @@ class ZanimeMenuBar(QMenuBar):
         if path:
             try:
                 registry.get(ProjectManager).save_project(path)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 QMessageBox.warning(self, "Save As", f"Could not save project:\n{e}")
 
     def _on_project_settings(self):
@@ -307,7 +307,7 @@ class ZanimeMenuBar(QMenuBar):
                         QMessageBox.information(self, "Export Complete", f"Story exported to:\n{path}")
                     else:
                         QMessageBox.warning(self, "Export", "Could not access story content.")
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     QMessageBox.warning(self, "Export Error", str(e))
 
     def _on_undo(self):

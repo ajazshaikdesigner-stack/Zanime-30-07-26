@@ -60,6 +60,8 @@ class SplashScreen(QSplashScreen):
         layout.setContentsMargins(50, 50, 50, 50)
 
     def update_progress(self, value: int, message: str):
+        from PySide6.QtWidgets import QApplication
         self.progress_bar.setValue(value)
         self.loading_label.setText(message)
-        self.repaint()  # Force UI update during synchronous startup
+        self.repaint()  # Force immediate paint
+        QApplication.processEvents()  # Drain event queue so the UI actually updates

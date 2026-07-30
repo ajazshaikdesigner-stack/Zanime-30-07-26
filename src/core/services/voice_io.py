@@ -3,9 +3,12 @@ Voice IO Service for exporting metadata.
 """
 
 import json
+import logging
 import os
 
 from src.models.voice_model import VoiceTimeline
+
+logger = logging.getLogger(__name__)
 
 
 class VoiceIO:
@@ -43,6 +46,6 @@ class VoiceIO:
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
             return True
-        except Exception as e:
-            print(f"Error exporting dialogue package: {e}")
+        except Exception as e:  # noqa: BLE001
+            logger.error("Error exporting dialogue package: %s", e)
             return False

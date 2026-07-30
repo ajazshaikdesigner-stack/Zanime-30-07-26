@@ -106,7 +106,7 @@ class ZanimeStatusBar(QStatusBar):
 
         try:
             self.process = psutil.Process(os.getpid()) if psutil else None
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.debug("Failed to initialize process telemetry: %s", e)
             self.process = None
 
@@ -144,7 +144,7 @@ class ZanimeStatusBar(QStatusBar):
         if self.app:
             try:
                 version = registry.get(ConfigurationManager).get("version", "2.0.0")
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.debug("Failed to load version: %s", e)
         self.version_label = QLabel(f"v{version}")
         self.version_label.setObjectName("SbVersion")
@@ -164,7 +164,7 @@ class ZanimeStatusBar(QStatusBar):
                 bus = registry.get(EventBus)
                 bus.subscribe(Event.PROJECT_SAVED, self._on_saved)
                 bus.subscribe(Event.APP_STARTED, lambda: self.set_status("Ready"))
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.debug("Failed to subscribe to event bus: %s", e)
 
         # Telemetry timer
@@ -210,5 +210,5 @@ class ZanimeStatusBar(QStatusBar):
             ram = self.process.memory_info().rss / (1024 * 1024)
             self.cpu_label.setText(f"CPU: {cpu:.0f}%")
             self.ram_label.setText(f"RAM: {ram:.0f} MB")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.debug("Telemetry update error: %s", e)

@@ -35,13 +35,22 @@ class EventBus:
             self._subscribers[event_type].remove(callback)
 
     def publish(self, event_type: Event, *args, **kwargs) -> None:
-        logger.debug(f"EventBus publishing: {event_type.name}")
+        logger.debug("EventBus publishing: %s", event_type.name)
         if event_type in self._subscribers:
-            for callback in self._subscribers[event_type]:
+            # Iterate a snapshot so unsubscribe-during-dispatch is safe
+            for callback in list(self._subscribers[event_type]):
                 try:
                     callback(*args, **kwargs)
-                except Exception as e:
-                    logger.error(
-                        f"Error in subscriber {callback.__name__} for {event_type.name}: {e}",
-                        exc_info=True,
+                except Exception:
+                    logger.exception(
+                        "Error in subscriber %s for %s",
+                        callback.__name__,
+                        event_type.name,
                     )
+
+    @classmethod
+    def reset(cls) -> None:
+        """Clears the singleton instance. Used in shutdown and test teardown."""
+        if cls._instance is not None:
+            cls._instance._subscribers.clear()
+        cls._instance = None

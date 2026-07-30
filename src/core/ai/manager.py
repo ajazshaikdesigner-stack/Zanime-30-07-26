@@ -65,7 +65,7 @@ class AIManager(QObject):
                 nm = registry.get(NotificationManager)
                 nm.show_info("Initializing AI Engines...")
             except KeyError:
-                pass
+                logger.debug("AIManager.initialize: NotificationManager not registered; skipping init notification.")
 
             # Initialize providers
             self.providers = {

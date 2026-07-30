@@ -310,7 +310,7 @@ class WelcomeWorkspace(BaseWorkspace):
         if self.app:
             from src.ui.wizards.new_project_wizard import NewProjectWizard
             wizard = NewProjectWizard(registry.get(ProjectManager), self)
-            if wizard.exec():
+            if wizard.exec() and registry.get(ProjectManager).current_project_path:
                 registry.get(WorkspaceManager).set_workspace("Home")
 
     def _on_open_project(self):
@@ -319,7 +319,7 @@ class WelcomeWorkspace(BaseWorkspace):
             try:
                 registry.get(ProjectManager).open_project(path)
                 registry.get(WorkspaceManager).set_workspace("Home")
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 QMessageBox.warning(self, "Open Project", f"Could not open project:\n{e}")
 
     def _on_import(self):
@@ -337,17 +337,23 @@ class WelcomeWorkspace(BaseWorkspace):
         try:
             registry.get(ProjectManager).open_project(demo_path)
             registry.get(WorkspaceManager).set_workspace("Home")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             QMessageBox.warning(self, "Open Demo", f"Could not open demo project:\n{e}")
 
     def _open_project(self, data):
-        logger.info(f"WelcomeWorkspace: Opening project: {data.get('name')}")
-        from src.core.managers.demo_manager import DemoProjectManager
-        demo_path = DemoProjectManager.ensure_demo_project()
+        """Opens a project from the recent project card. Uses the card's path if available."""
+        path = data.get("path") if isinstance(data, dict) else None
+        if not path:
+            # Mock entries have no real path — fall back to demo for demonstration
+            logger.info("WelcomeWorkspace: No path in project data; opening demo project")
+            from src.core.managers.demo_manager import DemoProjectManager
+            path = DemoProjectManager.ensure_demo_project()
+        else:
+            logger.info(f"WelcomeWorkspace: Opening project: {path}")
         try:
-            registry.get(ProjectManager).open_project(demo_path)
+            registry.get(ProjectManager).open_project(path)
             registry.get(WorkspaceManager).set_workspace("Home")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             QMessageBox.warning(self, "Open Project", f"Could not open project:\n{e}")
 
     def _on_getting_started(self):

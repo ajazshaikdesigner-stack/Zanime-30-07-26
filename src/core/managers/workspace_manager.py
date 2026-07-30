@@ -48,7 +48,7 @@ class WorkspaceManager:
                 "SceneComposer",
             }
             if workspace_name in ai_workspaces:
-                import threading
+                from PySide6.QtCore import QRunnable, QThreadPool
 
                 from src.core.ai.manager import AIManager
                 from src.core.services.service_registry import registry
@@ -56,8 +56,8 @@ class WorkspaceManager:
                 try:
                     ai_manager = registry.get(AIManager)
                     if not ai_manager._is_initialized:
-                        threading.Thread(
-                            target=ai_manager.initialize, daemon=True
-                        ).start()
+                        runnable = QRunnable.create(ai_manager.initialize)
+                        QThreadPool.globalInstance().start(runnable)
                 except KeyError:
-                    pass
+                    logger.debug("WorkspaceManager: AIManager not registered; skipping lazy AI initialization.")
+

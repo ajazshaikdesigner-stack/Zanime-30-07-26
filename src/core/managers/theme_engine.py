@@ -114,5 +114,5 @@ QDockWidget::title {
 
             self.app.setStyleSheet(qss)
             logger.info(f"ThemeEngine: Theme applied successfully ({len(qss)} chars QSS)")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.error(f"Failed to apply theme: {e}")
