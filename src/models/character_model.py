@@ -1,10 +1,11 @@
 """
 Data models for the Character Studio module.
 """
-import uuid
+
 import time
+import uuid
 from dataclasses import dataclass, field
-from typing import List, Dict, Optional
+
 
 @dataclass
 class CharacterDNA:
@@ -12,8 +13,8 @@ class CharacterDNA:
     name: str = "New Character"
     age: int = 18
     gender: str = "Unknown"
-    height: float = 170.0 # cm
-    weight: float = 60.0 # kg
+    height: float = 170.0  # cm
+    weight: float = 60.0  # kg
     body_type: str = "Average"
     face_shape: str = "Oval"
     eye_shape: str = "Almond"
@@ -30,14 +31,16 @@ class CharacterDNA:
     favorite_color: str = "Blue"
     biography: str = ""
 
+
 @dataclass
 class Outfit:
     name: str
     clothes: str = ""
     shoes: str = ""
-    accessories: List[str] = field(default_factory=list)
-    hair_style: Optional[str] = None
-    props: List[str] = field(default_factory=list)
+    accessories: list[str] = field(default_factory=list)
+    hair_style: str | None = None
+    props: list[str] = field(default_factory=list)
+
 
 @dataclass
 class CharacterSheet:
@@ -50,21 +53,22 @@ class CharacterSheet:
     right: str = ""
     front_right: str = ""
 
+
 @dataclass
 class CharacterModel:
     dna: CharacterDNA = field(default_factory=CharacterDNA)
-    outfits: Dict[str, Outfit] = field(default_factory=dict)
-    expressions: Dict[str, str] = field(default_factory=dict) # Name -> image_path
-    poses: Dict[str, str] = field(default_factory=dict)       # Name -> image_path
+    outfits: dict[str, Outfit] = field(default_factory=dict)
+    expressions: dict[str, str] = field(default_factory=dict)  # Name -> image_path
+    poses: dict[str, str] = field(default_factory=dict)  # Name -> image_path
     model_sheet: CharacterSheet = field(default_factory=CharacterSheet)
-    
+
     # Metadata
     created_at: float = field(default_factory=time.time)
     updated_at: float = field(default_factory=time.time)
-    tags: List[str] = field(default_factory=list)
-    categories: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
+    categories: list[str] = field(default_factory=list)
     is_favorite: bool = False
-    
+
     def get_thumbnail(self) -> str:
         """Returns the front image path or an empty string."""
         return self.model_sheet.front

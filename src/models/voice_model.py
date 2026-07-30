@@ -1,9 +1,10 @@
 """
 Data models for Voice & Dialogue Studio.
 """
+
 import uuid
 from dataclasses import dataclass, field
-from typing import List
+
 
 @dataclass
 class VoiceProfile:
@@ -17,10 +18,12 @@ class VoiceProfile:
     provider: str = "AI_TTS"
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
 
+
 @dataclass
 class VisemeData:
     frame: int = 0
-    mouth_shape: str = "Closed" # E.g., 'A', 'E', 'I', 'O', 'U', 'M'
+    mouth_shape: str = "Closed"  # E.g., 'A', 'E', 'I', 'O', 'U', 'M'
+
 
 @dataclass
 class DialogueClip:
@@ -30,23 +33,25 @@ class DialogueClip:
     emotion: str = "Neutral"
     volume: float = 1.0
     start_frame: int = 0
-    duration: int = 48 # Mock length
+    duration: int = 48  # Mock length
     audio_path: str = ""
-    visemes: List[VisemeData] = field(default_factory=list)
+    visemes: list[VisemeData] = field(default_factory=list)
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
+
 
 @dataclass
 class VoiceTrack:
     character_uuid: str = ""
-    clips: List[DialogueClip] = field(default_factory=list)
+    clips: list[DialogueClip] = field(default_factory=list)
     mute: bool = False
     solo: bool = False
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
+
 
 @dataclass
 class VoiceTimeline:
     scene_uuid: str = ""
     fps: int = 24
     total_frames: int = 240
-    tracks: List[VoiceTrack] = field(default_factory=list)
+    tracks: list[VoiceTrack] = field(default_factory=list)
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))

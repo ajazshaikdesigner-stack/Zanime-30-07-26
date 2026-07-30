@@ -1,10 +1,11 @@
 """
 Data models for World Builder Studio (Environments & Props).
 """
-import uuid
+
 import time
+import uuid
 from dataclasses import dataclass, field
-from typing import List
+
 
 @dataclass
 class EnvironmentDNA:
@@ -22,10 +23,11 @@ class EnvironmentDNA:
     camera_depth: str = "Wide"
     fog: str = "None"
     color_palette: str = "Vibrant"
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     image_path: str = ""
     is_favorite: bool = False
     created_at: float = field(default_factory=time.time)
+
 
 @dataclass
 class PropModel:
@@ -35,7 +37,7 @@ class PropModel:
     size: str = "Medium"
     material: str = "Wood"
     style: str = "Anime"
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     color: str = "Brown"
     animation_support: bool = False
     collision: bool = True

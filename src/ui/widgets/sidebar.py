@@ -1,15 +1,18 @@
 """
 Vertical toolbar for switching workspaces.
 """
-from PySide6.QtWidgets import QToolBar, QButtonGroup, QToolButton
+
 from PySide6.QtCore import Qt
-from src.core.services.service_registry import registry
+from PySide6.QtWidgets import QButtonGroup, QToolBar, QToolButton
+
 from src.core.managers.workspace_manager import WorkspaceManager
+from src.core.services.service_registry import registry
+
 
 class ZanimeSidebar(QToolBar):
     def __init__(self, parent=None):
         super().__init__("Sidebar", parent)
-        self.app = parent.app if hasattr(parent, 'app') else None
+        self.app = parent.app if hasattr(parent, "app") else None
         self.setMovable(False)
         self.setOrientation(Qt.Vertical)
         self.setStyleSheet("""
@@ -33,10 +36,10 @@ class ZanimeSidebar(QToolBar):
                 background-color: #3e3e42;
             }
         """)
-        
+
         self.button_group = QButtonGroup(self)
         self.button_group.setExclusive(True)
-        
+
         self._setup_workspaces()
 
     def _setup_workspaces(self):
@@ -54,25 +57,27 @@ class ZanimeSidebar(QToolBar):
             ("Music", "🎵 Music"),
             ("Render", "📤 Render"),
             ("Library", "📚 Library"),
-            ("Settings", "⚙ Settings")
+            ("Settings", "⚙ Settings"),
         ]
-        
+
         for ws_id, ws_label in workspaces:
             btn = QToolButton()
             btn.setText(ws_label)
             btn.setCheckable(True)
             # Use text beside icon if we had real icons, but since emoji is in text, just use text
             btn.setToolButtonStyle(Qt.ToolButtonTextOnly)
-            
+
             if ws_id == "Home":
                 btn.setChecked(True)
-                
+
             self.addWidget(btn)
             self.button_group.addButton(btn)
-            
+
             # Connect the click event, capturing the workspace id
-            btn.clicked.connect(lambda checked=False, w=ws_id: self._on_workspace_clicked(w))
-            
+            btn.clicked.connect(
+                lambda checked=False, w=ws_id: self._on_workspace_clicked(w)
+            )
+
     def _on_workspace_clicked(self, workspace_name):
         if self.app:
             registry.get(WorkspaceManager).set_workspace(workspace_name)

@@ -1,10 +1,13 @@
 """
 Notification Manager for non-blocking UI toasts.
 """
+
 import logging
+
 from src.core.events.event_bus import EventBus
 
 logger = logging.getLogger(__name__)
+
 
 class NotificationManager:
     def __init__(self, event_bus: EventBus):
@@ -16,6 +19,6 @@ class NotificationManager:
 
     def show_warning(self, message: str) -> None:
         logger.warning(f"Notification (Warning): {message}")
-        
+
     def show_error(self, message: str) -> None:
         logger.error(f"Notification (Error): {message}")

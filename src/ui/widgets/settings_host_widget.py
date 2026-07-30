@@ -1,22 +1,24 @@
 """
 Settings Host Widget - Uses QStackedWidget to host the admin panels.
 """
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget, QLabel, QPushButton
+
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QLabel, QPushButton, QStackedWidget, QVBoxLayout, QWidget
+
 
 class SettingsHostWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        
+
         layout = QVBoxLayout(self)
         self.stack = QStackedWidget()
         layout.addWidget(self.stack)
-        
+
         # General
         self.w_general = QLabel("General Settings\n(Preferences, Paths)")
         self.w_general.setAlignment(Qt.AlignCenter)
         self.stack.addWidget(self.w_general)
-        
+
         # Backup
         self.w_backup = QWidget()
         bl = QVBoxLayout(self.w_backup)
@@ -25,7 +27,7 @@ class SettingsHostWidget(QWidget):
         bl.addWidget(self.btn_backup)
         bl.addStretch()
         self.stack.addWidget(self.w_backup)
-        
+
         # Diagnostics
         self.w_diag = QWidget()
         dl = QVBoxLayout(self.w_diag)
@@ -36,7 +38,7 @@ class SettingsHostWidget(QWidget):
         dl.addWidget(self.diag_log)
         dl.addStretch()
         self.stack.addWidget(self.w_diag)
-        
+
         # Updates
         self.w_updates = QWidget()
         ul = QVBoxLayout(self.w_updates)
@@ -45,7 +47,7 @@ class SettingsHostWidget(QWidget):
         ul.addWidget(self.btn_update)
         ul.addStretch()
         self.stack.addWidget(self.w_updates)
-        
+
         # License
         self.w_license = QWidget()
         ll = QVBoxLayout(self.w_license)
@@ -55,6 +57,6 @@ class SettingsHostWidget(QWidget):
         ll.addWidget(self.lbl_tier)
         ll.addStretch()
         self.stack.addWidget(self.w_license)
-        
+
     def switch_to(self, index: int):
         self.stack.setCurrentIndex(index)

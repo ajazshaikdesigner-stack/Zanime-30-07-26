@@ -1,8 +1,9 @@
 """
 Animation Viewport
 """
-from PySide6.QtWidgets import QGraphicsView, QGraphicsScene
-from PySide6.QtCore import Qt
+
+from PySide6.QtWidgets import QGraphicsScene, QGraphicsView
+
 
 class AnimationViewport(QGraphicsView):
     def __init__(self, parent=None):

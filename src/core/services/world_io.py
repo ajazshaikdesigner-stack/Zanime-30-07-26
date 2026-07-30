@@ -1,9 +1,11 @@
 """
 World I/O operations (Export/Import).
 """
+
 import json
-import os
+
 from src.models.world_model import EnvironmentDNA, PropModel
+
 
 class WorldIO:
     @staticmethod
@@ -13,24 +15,24 @@ class WorldIO:
             "category": model.category,
             "style": model.style,
             "lighting": model.lighting,
-            "weather": model.weather
+            "weather": model.weather,
         }
         try:
-            with open(path, 'w', encoding='utf-8') as f:
+            with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
             return True
         except Exception:
             return False
-            
+
     @staticmethod
     def export_prop_json(model: PropModel, path: str) -> bool:
         data = {
             "name": model.name,
             "category": model.category,
-            "material": model.material
+            "material": model.material,
         }
         try:
-            with open(path, 'w', encoding='utf-8') as f:
+            with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
             return True
         except Exception:

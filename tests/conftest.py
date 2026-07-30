@@ -1,6 +1,8 @@
+import sys
+
 import pytest
 from PySide6.QtWidgets import QApplication
-import sys
+
 
 @pytest.fixture(scope="session")
 def qapp():

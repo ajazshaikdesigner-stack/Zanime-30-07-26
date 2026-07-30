@@ -1,14 +1,14 @@
-from .base_workspace import BaseWorkspace
-from .base_editor import BaseEditor
 from .base_dock import BaseDock
-from .base_ui import BaseToolbar, BasePanel, BaseInspector, BaseTimeline
+from .base_editor import BaseEditor
+from .base_ui import BaseInspector, BasePanel, BaseTimeline, BaseToolbar
+from .base_workspace import BaseWorkspace
 
 __all__ = [
-    "BaseWorkspace",
-    "BaseEditor",
     "BaseDock",
-    "BaseToolbar",
-    "BasePanel",
+    "BaseEditor",
     "BaseInspector",
-    "BaseTimeline"
+    "BasePanel",
+    "BaseTimeline",
+    "BaseToolbar",
+    "BaseWorkspace",
 ]

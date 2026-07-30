@@ -1,10 +1,11 @@
 """
 Data models for the Movie Composer Studio.
 """
-from enum import Enum
+
 import uuid
 from dataclasses import dataclass, field
-from typing import List, Optional
+from enum import Enum
+
 
 class LayerType(Enum):
     FAR_BACKGROUND = 0
@@ -18,10 +19,11 @@ class LayerType(Enum):
     OVERLAY = 8
     UI = 9
 
+
 @dataclass
 class ComposerObject:
     name: str = "New Object"
-    object_type: str = "Prop" # Character, Prop, Environment
+    object_type: str = "Prop"  # Character, Prop, Environment
     x: float = 0.0
     y: float = 0.0
     scale_x: float = 1.0
@@ -32,15 +34,17 @@ class ComposerObject:
     locked: bool = False
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
 
+
 @dataclass
 class ComposerShot:
     name: str = "New Shot"
-    objects: List[ComposerObject] = field(default_factory=list)
-    background_uuid: Optional[str] = None
+    objects: list[ComposerObject] = field(default_factory=list)
+    background_uuid: str | None = None
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
+
 
 @dataclass
 class ComposerScene:
     name: str = "New Scene"
-    shots: List[ComposerShot] = field(default_factory=list)
+    shots: list[ComposerShot] = field(default_factory=list)
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))

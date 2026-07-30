@@ -1,14 +1,17 @@
 """
 Data Models for Production Release & Quality Assurance
 """
+
+import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-import uuid
+
 
 class LicenseTier(Enum):
     COMMUNITY = "Community Edition"
     PROFESSIONAL = "Professional Edition"
     ENTERPRISE = "Enterprise Edition"
+
 
 @dataclass
 class SystemDiagnosticReport:
@@ -18,6 +21,7 @@ class SystemDiagnosticReport:
     cpu_info: str = "AMD Ryzen 5 5600H"
     app_version: str = "0.9.9"
     crash_traceback: str = ""
+
 
 @dataclass
 class BackupSnapshot:

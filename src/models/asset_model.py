@@ -1,10 +1,11 @@
 """
 Asset Data Models for Content Ecosystem
 """
+
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List
+
 
 class AssetType(Enum):
     CHARACTER = "Character"
@@ -18,6 +19,7 @@ class AssetType(Enum):
     SFX = "SFX"
     TEMPLATE = "Template"
 
+
 @dataclass
 class AssetMetadata:
     name: str
@@ -25,16 +27,18 @@ class AssetMetadata:
     category: str
     author: str = "Zanime Studios"
     version: str = "1.0"
-    tags: List[str] = field(default_factory=list)
-    dependencies: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
     is_favorite: bool = False
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
+
 
 @dataclass
 class AssetCollection:
     name: str
-    asset_uuids: List[str] = field(default_factory=list)
+    asset_uuids: list[str] = field(default_factory=list)
     uuid: str = field(default_factory=lambda: str(uuid.uuid4()))
+
 
 @dataclass
 class MarketplacePack:
@@ -42,5 +46,5 @@ class MarketplacePack:
     description: str
     price: float = 0.0
     rating: float = 5.0
-    assets_included: List[str] = field(default_factory=list)
+    assets_included: list[str] = field(default_factory=list)
     pack_id: str = field(default_factory=lambda: str(uuid.uuid4()))

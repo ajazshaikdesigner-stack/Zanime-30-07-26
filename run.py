@@ -1,24 +1,28 @@
 """
 Execution entry point.
 """
-import sys
-import os
 
-# Ensure project root is in sys.path
+import os
+import sys
+
+# Ensure project root is in sys.path so local imports work
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from src.app import ZanimeApp
-from src.ui.main_window import ZanimeMainWindow
-from PySide6.QtWidgets import QMessageBox
+# The following imports occur after modifying `sys.path` intentionally.
+# They are kept here because the path mutation must happen first.  noqa: E402
+from PySide6.QtWidgets import QMessageBox  # noqa: E402
+from src.app import ZanimeApp  # noqa: E402
+
 
 def global_exception_handler(exctype, value, tb):
     """Hooks into global exceptions to prevent hard crashes."""
     import logging
     import traceback
+
     logger = logging.getLogger(__name__)
     logger.error("Uncaught exception", exc_info=(exctype, value, tb))
     error_msg = "".join(traceback.format_exception(exctype, value, tb))
-    
+
     try:
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Critical)
@@ -29,21 +33,26 @@ def global_exception_handler(exctype, value, tb):
     except Exception:
         print(error_msg)
 
+
 sys.excepthook = global_exception_handler
+
 
 def main():
     app = ZanimeApp(sys.argv)
-    
+
     from src.ui.splash_screen import SplashScreen
+
     splash = SplashScreen()
     splash.show()
-    
-    main_window = app.startup_manager.boot(splash)
-    
-    from src.core.services.service_registry import registry
+
+    _ = app.startup_manager.boot(splash)
+
     from src.core.managers.application_manager import ApplicationManager
+    from src.core.services.service_registry import registry
+
     registry.get(ApplicationManager).startup()
     sys.exit(app.exec())
+
 
 if __name__ == "__main__":
     main()

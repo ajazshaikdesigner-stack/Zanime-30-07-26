@@ -1,9 +1,12 @@
 """
 Voice IO Service for exporting metadata.
 """
+
 import json
 import os
+
 from src.models.voice_model import VoiceTimeline
+
 
 class VoiceIO:
     @staticmethod
@@ -17,13 +20,13 @@ class VoiceIO:
                 "scene_uuid": timeline.scene_uuid,
                 "fps": timeline.fps,
                 "total_frames": timeline.total_frames,
-                "tracks": []
+                "tracks": [],
             }
             for track in timeline.tracks:
                 t_data = {
                     "character_uuid": track.character_uuid,
                     "mute": track.mute,
-                    "clips": []
+                    "clips": [],
                 }
                 for clip in track.clips:
                     c_data = {
@@ -31,13 +34,13 @@ class VoiceIO:
                         "emotion": clip.emotion,
                         "start_frame": clip.start_frame,
                         "duration": clip.duration,
-                        "audio_path": clip.audio_path
+                        "audio_path": clip.audio_path,
                     }
                     t_data["clips"].append(c_data)
                 data["tracks"].append(t_data)
-                
+
             os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, 'w', encoding='utf-8') as f:
+            with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
             return True
         except Exception as e:

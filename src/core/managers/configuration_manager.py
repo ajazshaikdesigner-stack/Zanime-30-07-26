@@ -1,20 +1,22 @@
 """
 Configuration Manager handling multiple config domains.
 """
-import logging
+
 import json
+import logging
 import os
-from typing import Any, Dict
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
+
 class ConfigurationManager:
     def __init__(self):
-        self.app_config: Dict[str, Any] = {}
-        self.user_config: Dict[str, Any] = {}
-        self.workspace_config: Dict[str, Any] = {}
-        self.project_config: Dict[str, Any] = {}
-        
+        self.app_config: dict[str, Any] = {}
+        self.user_config: dict[str, Any] = {}
+        self.workspace_config: dict[str, Any] = {}
+        self.project_config: dict[str, Any] = {}
+
         self.config_dir = "config"
         if not os.path.exists(self.config_dir):
             os.makedirs(self.config_dir)
@@ -32,35 +34,29 @@ class ConfigurationManager:
     def set_user(self, key: str, value: Any) -> None:
         self.user_config[key] = value
         self.save_user_config()
-        
+
     def save_user_config(self):
         path = os.path.join(self.config_dir, "user_config.json")
         try:
-            with open(path, 'w') as f:
+            with open(path, "w") as f:
                 json.dump(self.user_config, f, indent=4)
         except Exception as e:
             logger.error(f"Failed to save user config: {e}")
 
     def load_defaults(self):
-        self.app_config = {
-            "version": "1.0.0",
-            "hardware_accel": True
-        }
-        
+        self.app_config = {"version": "1.0.0", "hardware_accel": True}
+
         user_config_path = os.path.join(self.config_dir, "user_config.json")
         if os.path.exists(user_config_path):
             try:
-                with open(user_config_path, 'r') as f:
+                with open(user_config_path, "r") as f:
                     self.user_config = json.load(f)
             except Exception as e:
                 logger.error(f"Failed to load user config: {e}")
                 self._load_fallback_user_config()
         else:
             self._load_fallback_user_config()
-            
+
     def _load_fallback_user_config(self):
-        self.user_config = {
-            "default_theme": "dark",
-            "recent_projects": []
-        }
+        self.user_config = {"default_theme": "dark", "recent_projects": []}
         self.save_user_config()

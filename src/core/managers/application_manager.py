@@ -1,11 +1,14 @@
 """
 Global Application Manager for lifecycle orchestration.
 """
+
 import logging
+
 from src.core.events.event_bus import EventBus
 from src.core.events.event_types import Event
 
 logger = logging.getLogger(__name__)
+
 
 class ApplicationManager:
     def __init__(self, event_bus: EventBus):
